@@ -18,4 +18,6 @@ public class XacmlRequestDto {
 
     @NotNull
     private PatientIdDto patientId;
+
+    private String messageId;
 }

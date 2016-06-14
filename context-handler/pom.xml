@@ -23,6 +23,8 @@
 		<java.version>1.8</java.version>
 		<lombok.version>1.16.6</lombok.version>
 		<spring.cloud.version>Brixton.RELEASE</spring.cloud.version>
+		<herasaf-xacml-core.version>1.0.0.M3</herasaf-xacml-core.version>
+		<mhc.common-libraries.version>1.1.0</mhc.common-libraries.version>
 	</properties>
 
 	<dependencies>
@@ -47,7 +49,31 @@
 			<artifactId>lombok</artifactId>
 			<version>${lombok.version}</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.herasaf.xacml.core</groupId>
+			<artifactId>herasaf-xacml-core</artifactId>
+			<version>${herasaf-xacml-core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>gov.samhsa.mhc</groupId>
+			<artifactId>resource-url</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>gov.samhsa.mhc</groupId>
+			<artifactId>document-transformer</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>gov.samhsa.mhc</groupId>
+			<artifactId>document-converter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>gov.samhsa.mhc</groupId>
+			<artifactId>document-accessor</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>gov.samhsa.mhc</groupId>
+			<artifactId>audit-service</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -63,6 +89,32 @@
 				<version>${spring.cloud.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>gov.samhsa.mhc</groupId>
+				<artifactId>resource-url</artifactId>
+				<version>${mhc.common-libraries.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>gov.samhsa.mhc</groupId>
+				<artifactId>document-transformer</artifactId>
+				<version>${mhc.common-libraries.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>gov.samhsa.mhc</groupId>
+				<artifactId>document-converter</artifactId>
+				<version>${mhc.common-libraries.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>gov.samhsa.mhc</groupId>
+				<artifactId>document-accessor</artifactId>
+				<version>${mhc.common-libraries.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>gov.samhsa.mhc</groupId>
+				<artifactId>audit-service</artifactId>
+				<version>${mhc.common-libraries.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
