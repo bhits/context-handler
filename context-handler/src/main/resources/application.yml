@@ -1,4 +1,5 @@
 server:
+  context-path: /contextHandler
   port: 8454
 logging:
   file: /java/MHC_LOGS/context-handler/context-handler.log
@@ -52,8 +53,6 @@ spring.profiles: standalone-ssl
 spring:
   profiles:
     include: ssl
-server:
-  context-path: /contextHandler
 ---
 spring:
   profiles: docker

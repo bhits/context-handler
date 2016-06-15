@@ -27,29 +27,30 @@ package gov.samhsa.c2s.contexthandler.service;
 
 
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import javax.xml.bind.JAXBException;
-
+import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import org.herasaf.xacml.core.SyntaxException;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.herasaf.xacml.core.policy.PolicyMarshaller;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
+
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The Class PolRepPolicyProvider.
  */
+@Service
 public class PolRepPolicyProvider implements PolicyProvider {
+	/** The logger. */
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	/** The Constant WILDCARD. */
 	private static final String WILDCARD = "*";
 
@@ -75,10 +76,11 @@ public class PolRepPolicyProvider implements PolicyProvider {
 			final String policyId = toPolicyId(mrn, pidDomain,
 					xacmlRequest.getRecipientNpi(),
 					xacmlRequest.getIntermediaryNpi());
-			final PolicyDto policyDto = polRepRestClient
+			PolicyDto policyDto = new PolicyDto();
+/*			final PolicyDto policyDto = polRepRestClient
 					.getPoliciesCombinedAsPolicySet(policyId, WILDCARD, UUID
 									.randomUUID().toString(),
-							PolicyCombiningAlgIds.DENY_OVERRIDES);
+							PolicyCombiningAlgIds.DENY_OVERRIDES);*/
 			final Evaluatable policySet = PolicyMarshaller
 					.unmarshal(new ByteArrayInputStream(policyDto.getPolicy()));
 			return Arrays.asList(policySet);

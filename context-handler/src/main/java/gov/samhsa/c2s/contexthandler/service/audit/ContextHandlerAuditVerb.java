@@ -23,11 +23,11 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-package gov.samhsa.c2s.contexthandler.service.util;
+package gov.samhsa.c2s.contexthandler.service.audit;
 
 import gov.samhsa.mhc.common.audit.AuditVerb;
 
-public enum AcsAuditVerb implements AuditVerb {
+public enum ContextHandlerAuditVerb implements AuditVerb {
 	// PEP-registryStoredQuery (ITI-18)
 	REGISTRY_STORED_QUERY_REQUEST,
 	REGISTRY_STORED_QUERY_RESPONSE,

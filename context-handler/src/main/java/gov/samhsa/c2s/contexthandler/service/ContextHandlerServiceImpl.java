@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,7 +35,8 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
             logger.debug( "PDP Obligations: ", xacmlResponse.getPdpObligations().toString());
             return xacmlResponse;
         } catch (final NoPolicyFoundException e) {
-            final XacmlResponseDto xacmlResponse = new XacmlResponseDto();
+            List<String> pdpObligations = new ArrayList<String>();
+            final XacmlResponseDto xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations(pdpObligations).build();
             xacmlResponse.setPdpDecision(e.getClass().getName());
             return xacmlResponse;
         }

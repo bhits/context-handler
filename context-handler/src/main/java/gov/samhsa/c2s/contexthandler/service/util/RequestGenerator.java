@@ -25,14 +25,6 @@
  ******************************************************************************/
 package gov.samhsa.c2s.contexthandler.service.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Optional;
-
 import gov.samhsa.c2s.contexthandler.service.XacmlXslUrlProviderImpl;
 import gov.samhsa.c2s.contexthandler.service.XslResource;
 import gov.samhsa.c2s.contexthandler.service.dto.PatientIdDto;
@@ -42,18 +34,18 @@ import gov.samhsa.mhc.common.document.transformer.XmlTransformer;
 import gov.samhsa.mhc.common.document.transformer.XmlTransformerImpl;
 import gov.samhsa.mhc.common.marshaller.SimpleMarshallerImpl;
 import org.herasaf.xacml.core.SyntaxException;
-import org.herasaf.xacml.core.api.PDP;
-import org.herasaf.xacml.core.api.PolicyRetrievalPoint;
-import org.herasaf.xacml.core.api.UnorderedPolicyRepository;
 import org.herasaf.xacml.core.context.RequestMarshaller;
 import org.herasaf.xacml.core.context.impl.RequestType;
-import org.herasaf.xacml.core.context.impl.ResponseType;
-import org.herasaf.xacml.core.policy.Evaluatable;
-import org.herasaf.xacml.core.policy.PolicyMarshaller;
-import org.herasaf.xacml.core.simplePDP.SimplePDPFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * The Class RequestGenerator.
@@ -202,7 +194,7 @@ public class RequestGenerator {
 	 * @throws SyntaxException
 	 *             the syntax exception
 	 */
-	public static void main(String[] args) throws UnsupportedEncodingException,
+/*	public static void main(String[] args) throws UnsupportedEncodingException,
 	SyntaxException {
 		final PDP pdp = SimplePDPFactory.getSimplePDP();
 		//final String workingreq = "<xacml-context:Request xmlns:xacml-context=\"urn:oasis:names:tc:xacml:2.0:context:schema:os\"><xacml-context:Subject SubjectCategory=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\"><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject:subject-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>Mie Physician</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:2.0:subject:role\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>Administrator</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xspa:1.0:subject:organization\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>MIE</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xspa:1.0:subject:organization-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>2.16.840.1.113883.3.704.1.100.102</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xspa:1.0:subject:purposeofuse\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>TREATMENT</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>2222222222</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>1427467752</xacml-context:AttributeValue></xacml-context:Attribute></xacml-context:Subject><Resource xmlns=\"urn:oasis:names:tc:xacml:2.0:context:schema:os\"><Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:typeCode\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" XdsId=\"urn:uuid:f0306f51-975f-434e-a61c-c59651d33983\"><AttributeValue>34133-9</AttributeValue></Attribute><Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:practiceSettingCode\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" XdsId=\"urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead\"><AttributeValue>Home</AttributeValue></Attribute><Attribute AttributeId=\"xacml:status\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" XdsId=\"status\"><AttributeValue>urn:oasis:names:tc:ebxml-regrep:StatusType:Approved</AttributeValue></Attribute></Resource><xacml-context:Action><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>xdsquery</xacml-context:AttributeValue></xacml-context:Attribute></xacml-context:Action><xacml-context:Environment><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:environment:current-dateTime\" DataType=\"http://www.w3.org/2001/XMLSchema#dateTime\"><xacml-context:AttributeValue>2014-08-18T18:45:12.633Z</xacml-context:AttributeValue></xacml-context:Attribute></xacml-context:Environment></xacml-context:Request>";
@@ -223,7 +215,7 @@ public class RequestGenerator {
 
 		final ResponseType resp = pdp.evaluate(request);
 		System.out.println(resp.getResults().get(0).getDecision().toString());
-	}
+	}*/
 	
 	public static void main1(String[] args) throws UnsupportedEncodingException,
 	SyntaxException {

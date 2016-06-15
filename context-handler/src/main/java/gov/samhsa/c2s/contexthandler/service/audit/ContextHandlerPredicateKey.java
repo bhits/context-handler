@@ -23,11 +23,11 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-package gov.samhsa.c2s.contexthandler.service.util;
+package gov.samhsa.c2s.contexthandler.service.audit;
 
 import gov.samhsa.mhc.common.audit.PredicateKey;
 
-public enum AcsPredicateKey implements PredicateKey {
+public enum ContextHandlerPredicateKey implements PredicateKey {
 	PATIENT_UNIQUE_ID,
 	RECIPIENT_SUBJECT_NPI,
 	INTERMEDIARY_SUBJECT_NPI,

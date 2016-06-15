@@ -29,9 +29,10 @@ import ch.qos.logback.audit.AuditException;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
+import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
-import gov.samhsa.c2s.contexthandler.service.util.AcsAuditVerb;
-import gov.samhsa.c2s.contexthandler.service.util.AcsPredicateKey;
+import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerAuditVerb;
+import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerPredicateKey;
 import gov.samhsa.c2s.contexthandler.service.util.RequestGenerator;
 import gov.samhsa.mhc.common.audit.AuditService;
 import gov.samhsa.mhc.common.audit.PredicateKey;
@@ -39,14 +40,13 @@ import gov.samhsa.mhc.common.document.accessor.DocumentAccessor;
 import gov.samhsa.mhc.common.document.accessor.DocumentAccessorException;
 import gov.samhsa.mhc.common.document.converter.DocumentXmlConverter;
 import gov.samhsa.mhc.common.document.converter.DocumentXmlConverterException;
+import lombok.val;
 import org.herasaf.xacml.core.WritingException;
 import org.herasaf.xacml.core.api.PDP;
 import org.herasaf.xacml.core.api.PolicyRepository;
 import org.herasaf.xacml.core.api.PolicyRetrievalPoint;
 import org.herasaf.xacml.core.api.UnorderedPolicyRepository;
 import org.herasaf.xacml.core.context.impl.RequestType;
-
-import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import org.herasaf.xacml.core.context.impl.ResponseType;
 import org.herasaf.xacml.core.context.impl.ResultType;
 import org.herasaf.xacml.core.policy.Evaluatable;
@@ -82,7 +82,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
 	@Autowired
 	private RequestGenerator requestGenerator;
 
-	@AutowiredService
+	@Autowired
 	private AuditService auditService;
 
 	/** The document accessor. */
@@ -136,7 +136,9 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
 	}
 
 	private XacmlResponseDto evaluateRequest(PDP simplePDP, RequestType request) {
-		final XacmlResponseDto xacmlResponse = new XacmlResponseDto();
+		//final XacmlResponseDto xacmlResponse = new XacmlResponseDto();
+		List<String> pdpObligations = new ArrayList<String>();
+		val xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations(pdpObligations).build();
 
 		final ResponseType response = simplePDP.evaluate(request);
 		for (final ResultType r : response.getResults()) {
@@ -214,11 +216,11 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
 				policyIdSet.add(policyIdNodeList.item(i).getNodeValue());
 			}
 		}
-		predicateMap.put(AcsPredicateKey.XACML_POLICY, policyString);
+		predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY, policyString);
 		if (policyIdSet != null) {
-			predicateMap.put(AcsPredicateKey.XACML_POLICY_ID, policyIdSet.toString());
+			predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY_ID, policyIdSet.toString());
 		}
-		auditService.audit(this, xacmlRequest.getMessageId(), AcsAuditVerb.DEPLOY_POLICY,
+		auditService.audit(this, xacmlRequest.getMessageId(), ContextHandlerAuditVerb.DEPLOY_POLICY,
 				xacmlRequest.getPatientId().getExtension(), predicateMap);
 	}
 
