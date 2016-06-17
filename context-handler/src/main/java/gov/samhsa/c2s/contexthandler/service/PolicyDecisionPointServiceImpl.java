@@ -26,13 +26,13 @@
 package gov.samhsa.c2s.contexthandler.service;
 
 import ch.qos.logback.audit.AuditException;
+import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerAuditVerb;
+import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerPredicateKey;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
-import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerAuditVerb;
-import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerPredicateKey;
 import gov.samhsa.c2s.contexthandler.service.util.RequestGenerator;
 import gov.samhsa.mhc.common.audit.AuditService;
 import gov.samhsa.mhc.common.audit.PredicateKey;
@@ -63,8 +63,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
-import static org.herasaf.xacml.core.simplePDP.SimplePDPFactory.getSimplePDP;
-
 /**
  * ss PolicyDecisionPointServiceImpl.
  */
@@ -93,6 +91,11 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
 	@Autowired
 	private DocumentXmlConverter documentXmlConverter;
 
+	// to initialize herasaf context
+	@Autowired
+	private PDP pdp;
+
+
 	@Override
 	public XacmlResponseDto evaluateRequest(XacmlRequestDto xacmlRequest)
 			throws C2SAuditException, NoPolicyFoundException,
@@ -108,7 +111,6 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
 			RequestType request, XacmlRequestDto xacmlRequest)
 			throws C2SAuditException, NoPolicyFoundException,
 			PolicyProviderException {
-		final PDP pdp = getSimplePDP();
 		deployPolicies(pdp, xacmlRequest);
 		return managePoliciesAndEvaluateRequest(pdp, request);
 	}

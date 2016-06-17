@@ -18,6 +18,11 @@ public class ContextHandlerRestController {
     @Autowired
     private ContextHandlerService contextHandlerService;
 
+    @RequestMapping("/")
+    public String index() {
+        return "Welcome to Context Handler Service";
+    }
+
     @RequestMapping(value = "/policyEnforcement", method = RequestMethod.POST)
     public XacmlResponseDto access(@Valid @RequestBody XacmlRequestDto xacmlRequest) throws C2SAuditException {
         return contextHandlerService.enforcePolicy(xacmlRequest);

@@ -1,8 +1,8 @@
 server:
-  context-path: /contextHandler
   port: 8454
 logging:
   file: /java/MHC_LOGS/context-handler/context-handler.log
+  level: debug
 info:
   component: context handler API
 eureka:
@@ -19,24 +19,31 @@ eureka:
 hystrix.command.default.execution.timeout.enabled: false
 ribbon:
   ReadTimeout: 50000
-security:
-  basic:
-    enabled: false
-  oauth2:
-    resource:
-      jwt:
-        keyValue:
-                         -----BEGIN PUBLIC KEY-----
-                         MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0m59l2u9iDnMbrXHfqkO
-                         rn2dVQ3vfBJqcDuFUK03d+1PZGbVlNCqnkpIJ8syFppW8ljnWweP7+LiWpRoz0I7
-                         fYb3d8TjhV86Y997Fl4DBrxgM6KTJOuE/uxnoDhZQ14LgOU2ckXjOzOdTsnGMKQB
-                         LCl0vpcXBtFLMaSbpv1ozi8h7DJyVZ6EnFQZUWGdgTMhDrmqevfx95U/16c5WBDO
-                         kqwIn7Glry9n9Suxygbf8g5AzpWcusZgDLIIZ7JTUldBb8qU2a0Dl4mvLZOn4wPo
-                         jfj9Cw2QICsc5+Pwf21fP+hzf+1WSRHbnYv8uanRO0gZ8ekGaghM/2H6gqJbo2nI
-                         JwIDAQAB
-                         -----END PUBLIC KEY-----
-    client:
-      client-id: context handler
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/pcm?autoReconnect=true
+    username: root
+    password: admin
+    driver-class-name: com.mysql.jdbc.Driver
+    validation-query: select 1
+    test-on-borrow: true
+    test-on-return: true
+    test-while-idle: true
+    time-between-eviction-runs-millis: 1800000
+    num-tests-per-eviction-run: 3
+    min-evictable-idle-time-millis: 1800000
+mhc:
+  context-handler:
+    pid.type: ISO
+    polrep:
+      policySet:
+        combiningAlgs:
+          first-applicable: urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:first-applicable
+          ordered-deny-overrides: urn:oasis:names:tc:xacml:1.1:policy-combining-algorithm:ordered-deny-overrides
+          ordered-permit-overrides: urn:oasis:names:tc:xacml:1.1:policy-combining-algorithm:ordered-permit-overrides
+          deny-overrides: urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides
+          only-one-applicable: urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:only-one-applicable
+          permit-overrides: urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:permit-overrides
 ---
 spring.profiles: ssl
 server:
@@ -53,6 +60,7 @@ spring.profiles: standalone-ssl
 spring:
   profiles:
     include: ssl
+server.context-path: /contextHandler
 ---
 spring:
   profiles: docker

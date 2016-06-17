@@ -25,19 +25,18 @@
  ******************************************************************************/
 package gov.samhsa.c2s.contexthandler.service.util;
 
-import gov.samhsa.c2s.contexthandler.service.XacmlXslUrlProviderImpl;
-import gov.samhsa.c2s.contexthandler.service.XslResource;
 import gov.samhsa.c2s.contexthandler.service.dto.PatientIdDto;
 import gov.samhsa.c2s.contexthandler.service.dto.SubjectPurposeOfUse;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
+import gov.samhsa.mhc.common.consentgen.XacmlXslUrlProviderImpl;
+import gov.samhsa.mhc.common.consentgen.XslResource;
 import gov.samhsa.mhc.common.document.transformer.XmlTransformer;
-import gov.samhsa.mhc.common.document.transformer.XmlTransformerImpl;
-import gov.samhsa.mhc.common.marshaller.SimpleMarshallerImpl;
 import org.herasaf.xacml.core.SyntaxException;
 import org.herasaf.xacml.core.context.RequestMarshaller;
 import org.herasaf.xacml.core.context.impl.RequestType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -57,8 +56,8 @@ public class RequestGenerator {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	/** The xml transformer. */
-	private XmlTransformer xmlTransformer = new XmlTransformerImpl(
-			new SimpleMarshallerImpl());
+	@Autowired
+	private XmlTransformer xmlTransformer;
 	
 
 	public RequestType generateRequest(XacmlRequestDto xacmlRequest) {
@@ -84,6 +83,9 @@ public class RequestGenerator {
 			XacmlXslUrlProviderImpl xacmlXslUrlProvider = new XacmlXslUrlProviderImpl();
 			pdpRequest = xmlTransformer.transform( xacmlRequest,
 					xacmlXslUrlProvider.getUrl(XslResource.PDPREQUESTXSLNAME), Optional.empty(),Optional.empty());
+ /*           pdpRequest = generateRequestString(xacmlRequest.getRecipientNpi(),
+                                                xacmlRequest.getIntermediaryNpi(), xacmlRequest.getPurposeOfUse().name(), xacmlRequest.getPatientId().getExtension() );
+*/
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
@@ -183,6 +185,8 @@ public class RequestGenerator {
 			throws SyntaxException {
 		return RequestMarshaller.unmarshal(inputStream);
 	}
+
+
 	
 	/**
 	 * The main method.
