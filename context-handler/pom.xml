@@ -68,6 +68,10 @@
 		</dependency>
 		<dependency>
 			<groupId>gov.samhsa.mhc</groupId>
+			<artifactId>logger-wrapper</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>gov.samhsa.mhc</groupId>
 			<artifactId>resource-url</artifactId>
 		</dependency>
 		<dependency>
@@ -120,6 +124,11 @@
 				<scope>import</scope>
 			</dependency>
 
+			<dependency>
+				<groupId>gov.samhsa.mhc</groupId>
+				<artifactId>logger-wrapper</artifactId>
+				<version>${mhc.common-libraries.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>gov.samhsa.mhc</groupId>
 				<artifactId>resource-url</artifactId>

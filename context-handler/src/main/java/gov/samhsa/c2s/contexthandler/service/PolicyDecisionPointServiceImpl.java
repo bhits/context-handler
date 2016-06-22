@@ -1,17 +1,17 @@
 /*******************************************************************************
  * Open Behavioral Health Information Technology Architecture (OBHITA.org)
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the <organization> nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the <organization> nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -40,12 +40,15 @@ import gov.samhsa.mhc.common.document.accessor.DocumentAccessor;
 import gov.samhsa.mhc.common.document.accessor.DocumentAccessorException;
 import gov.samhsa.mhc.common.document.converter.DocumentXmlConverter;
 import gov.samhsa.mhc.common.document.converter.DocumentXmlConverterException;
+import gov.samhsa.mhc.common.log.Logger;
+import gov.samhsa.mhc.common.log.LoggerFactory;
 import lombok.val;
 import org.herasaf.xacml.core.WritingException;
 import org.herasaf.xacml.core.api.PDP;
 import org.herasaf.xacml.core.api.PolicyRepository;
 import org.herasaf.xacml.core.api.PolicyRetrievalPoint;
 import org.herasaf.xacml.core.api.UnorderedPolicyRepository;
+import org.herasaf.xacml.core.context.RequestMarshaller;
 import org.herasaf.xacml.core.context.impl.RequestType;
 import org.herasaf.xacml.core.context.impl.ResponseType;
 import org.herasaf.xacml.core.context.impl.ResultType;
@@ -53,12 +56,11 @@ import org.herasaf.xacml.core.policy.Evaluatable;
 import org.herasaf.xacml.core.policy.PolicyMarshaller;
 import org.herasaf.xacml.core.policy.impl.AttributeAssignmentType;
 import org.herasaf.xacml.core.policy.impl.ObligationType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.NodeList;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
@@ -69,161 +71,183 @@ import java.util.*;
 @Service
 public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointService {
 
-	/** The logger. */
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    /**
+     * The logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	/** The policy provider. */
-	@Autowired
-	private PolicyProvider policyProvider;
+    /**
+     * The policy provider.
+     */
+    @Autowired
+    private PolicyProvider policyProvider;
 
-	/** The request generator. */
-	@Autowired
-	private RequestGenerator requestGenerator;
+    /**
+     * The request generator.
+     */
+    @Autowired
+    private RequestGenerator requestGenerator;
 
-	@Autowired
-	private AuditService auditService;
+    @Autowired
+    private AuditService auditService;
 
-	/** The document accessor. */
-	@Autowired
-	private DocumentAccessor documentAccessor;
+    /**
+     * The document accessor.
+     */
+    @Autowired
+    private DocumentAccessor documentAccessor;
 
-	/** The document xml converter. */
-	@Autowired
-	private DocumentXmlConverter documentXmlConverter;
+    /**
+     * The document xml converter.
+     */
+    @Autowired
+    private DocumentXmlConverter documentXmlConverter;
 
-	// to initialize herasaf context
-	@Autowired
-	private PDP pdp;
-
-
-	@Override
-	public XacmlResponseDto evaluateRequest(XacmlRequestDto xacmlRequest)
-			throws C2SAuditException, NoPolicyFoundException,
-			PolicyProviderException {
-		logger.info("evaluateRequest invoked");
-
-		final RequestType request = requestGenerator.generateRequest(xacmlRequest);
-
-		return managePoliciesAndEvaluateRequest(request, xacmlRequest);
-	}
-
-	private synchronized XacmlResponseDto managePoliciesAndEvaluateRequest(
-			RequestType request, XacmlRequestDto xacmlRequest)
-			throws C2SAuditException, NoPolicyFoundException,
-			PolicyProviderException {
-		deployPolicies(pdp, xacmlRequest);
-		return managePoliciesAndEvaluateRequest(pdp, request);
-	}
-
-	private List<Evaluatable> deployPolicies(PDP pdp, XacmlRequestDto xacmlRequest)
-			throws C2SAuditException, NoPolicyFoundException,
-			PolicyProviderException {
-		final List<Evaluatable> deployedPolicies = getPolicies(xacmlRequest);
-		deployPolicies(pdp, deployedPolicies, xacmlRequest, true);
-		return deployedPolicies;
-	}
-
-	List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest)
-			throws NoPolicyFoundException, PolicyProviderException {
-
-		return policyProvider.getPolicies(xacmlRequest);
-	}
+    // to initialize herasaf context
+    @Autowired
+    private PDP pdp;
 
 
-	private XacmlResponseDto managePoliciesAndEvaluateRequest(PDP pdp,
-														   RequestType request) {
-		final XacmlResponseDto xacmlResponse = evaluateRequest(pdp, request);
-		undeployAllPolicies(pdp);
-		return xacmlResponse;
-	}
+    @Override
+    public XacmlResponseDto evaluateRequest(XacmlRequestDto xacmlRequest)
+            throws C2SAuditException, NoPolicyFoundException,
+            PolicyProviderException {
+        logger.info("evaluateRequest invoked");
 
-	private XacmlResponseDto evaluateRequest(PDP simplePDP, RequestType request) {
-		//final XacmlResponseDto xacmlResponse = new XacmlResponseDto();
-		List<String> pdpObligations = new ArrayList<String>();
-		val xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations(pdpObligations).build();
+        final RequestType request = requestGenerator.generateRequest(xacmlRequest);
+        logger.debug(() -> createPDPRequestLogMessage(request));
 
-		final ResponseType response = simplePDP.evaluate(request);
-		for (final ResultType r : response.getResults()) {
-			logger.debug( "PDP Decision: " + r.getDecision().toString());
-			xacmlResponse.setPdpDecision(r.getDecision().toString());
+        return managePoliciesAndEvaluateRequest(request, xacmlRequest);
+    }
 
-			if (r.getObligations() != null) {
-				final List<String> obligations = new LinkedList<String>();
-				for (final ObligationType o : r.getObligations()
-						.getObligations()) {
-					for (final AttributeAssignmentType a : o
-							.getAttributeAssignments()) {
-						for (final Object c : a.getContent()) {
-							logger.debug( "With Obligation: " + c);
-							obligations.add(c.toString());
-						}
-					}
-				}
-				xacmlResponse.setPdpObligations(obligations);
-			}
-		}
+    private synchronized XacmlResponseDto managePoliciesAndEvaluateRequest(
+            RequestType request, XacmlRequestDto xacmlRequest)
+            throws C2SAuditException, NoPolicyFoundException,
+            PolicyProviderException {
+        deployPolicies(pdp, xacmlRequest);
+        return managePoliciesAndEvaluateRequest(pdp, request);
+    }
 
-		logger.debug( "xacmlResponse.pdpDecision: "
-				+ xacmlResponse.getPdpDecision());
-		logger.debug("xacmlResponse is ready!");
-		return xacmlResponse;
-	}
+    private List<Evaluatable> deployPolicies(PDP pdp, XacmlRequestDto xacmlRequest)
+            throws C2SAuditException, NoPolicyFoundException,
+            PolicyProviderException {
+        final List<Evaluatable> deployedPolicies = getPolicies(xacmlRequest);
+        deployPolicies(pdp, deployedPolicies, xacmlRequest, true);
+        return deployedPolicies;
+    }
+
+    List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest)
+            throws NoPolicyFoundException, PolicyProviderException {
+
+        return policyProvider.getPolicies(xacmlRequest);
+    }
 
 
-	void deployPolicies(PDP pdp, List<Evaluatable> policies,
-						XacmlRequestDto xacmlRequest, boolean isAudited)
-			throws C2SAuditException {
-		try {
-			final PolicyRetrievalPoint repo = pdp.getPolicyRepository();
-			final UnorderedPolicyRepository repository = (UnorderedPolicyRepository) repo;
-			repository.deploy(policies);
-			if (isAudited) {
-				for (final Evaluatable policy : policies) {
-					auditPolicy(policy, xacmlRequest);
-				}
-			}
-		} catch (AuditException | WritingException | IOException
-				| DocumentAccessorException | DocumentXmlConverterException e) {
-			logger.error(e.getMessage(), e);
-			undeployAllPolicies(pdp);
-			throw new C2SAuditException(e.getMessage(), e);
-		}
-	}
+    private XacmlResponseDto managePoliciesAndEvaluateRequest(PDP pdp,
+                                                              RequestType request) {
+        final XacmlResponseDto xacmlResponse = evaluateRequest(pdp, request);
+        undeployAllPolicies(pdp);
+        return xacmlResponse;
+    }
 
-	private void undeployAllPolicies(PDP pdp) {
-		final PolicyRepository repo = (PolicyRepository) pdp
-				.getPolicyRepository();
-		final List<Evaluatable> policies = new LinkedList<Evaluatable>(
-				repo.getDeployment());
-		for (final Evaluatable policy : policies) {
-			repo.undeploy(policy.getId());
-		}
-	}
+    private XacmlResponseDto evaluateRequest(PDP simplePDP, RequestType request) {
+        //final XacmlResponseDto xacmlResponse = new XacmlResponseDto();
+        List<String> pdpObligations = new ArrayList<String>();
+        val xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations(pdpObligations).build();
 
-	private void auditPolicy(Evaluatable policy, XacmlRequestDto xacmlRequest)
-			throws WritingException, IOException, DocumentAccessorException,
-			AuditException {
-		final StringWriter writer = new StringWriter();
-		PolicyMarshaller.marshal(policy, writer);
-		final Map<PredicateKey, String> predicateMap = auditService
-				.createPredicateMap();
-		final String policyString = writer.toString();
-		writer.close();
-		final NodeList policyIdNodeList = documentAccessor.getNodeList(
-				documentXmlConverter.loadDocument(policyString), "//@PolicyId");
-		Set<String> policyIdSet = null;
-		if (policyIdNodeList.getLength() > 0) {
-			policyIdSet = new HashSet<String>();
-			for (int i = 0; i < policyIdNodeList.getLength(); i++) {
-				policyIdSet.add(policyIdNodeList.item(i).getNodeValue());
-			}
-		}
-		predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY, policyString);
-		if (policyIdSet != null) {
-			predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY_ID, policyIdSet.toString());
-		}
-		auditService.audit(this, xacmlRequest.getMessageId(), ContextHandlerAuditVerb.DEPLOY_POLICY,
-				xacmlRequest.getPatientId().getExtension(), predicateMap);
-	}
+        final ResponseType response = simplePDP.evaluate(request);
+        for (final ResultType r : response.getResults()) {
+            logger.debug("PDP Decision: " + r.getDecision().toString());
+            xacmlResponse.setPdpDecision(r.getDecision().toString());
 
+            if (r.getObligations() != null) {
+                final List<String> obligations = new LinkedList<String>();
+                for (final ObligationType o : r.getObligations()
+                        .getObligations()) {
+                    for (final AttributeAssignmentType a : o
+                            .getAttributeAssignments()) {
+                        for (final Object c : a.getContent()) {
+                            logger.debug("With Obligation: " + c);
+                            obligations.add(c.toString());
+                        }
+                    }
+                }
+                xacmlResponse.setPdpObligations(obligations);
+            }
+        }
+
+        logger.debug("xacmlResponse.pdpDecision: "
+                + xacmlResponse.getPdpDecision());
+        logger.debug("xacmlResponse is ready!");
+        return xacmlResponse;
+    }
+
+
+    void deployPolicies(PDP pdp, List<Evaluatable> policies,
+                        XacmlRequestDto xacmlRequest, boolean isAudited)
+            throws C2SAuditException {
+        try {
+            final PolicyRetrievalPoint repo = pdp.getPolicyRepository();
+            final UnorderedPolicyRepository repository = (UnorderedPolicyRepository) repo;
+            repository.deploy(policies);
+            if (isAudited) {
+                for (final Evaluatable policy : policies) {
+                    auditPolicy(policy, xacmlRequest);
+                }
+            }
+        } catch (AuditException | WritingException | IOException
+                | DocumentAccessorException | DocumentXmlConverterException e) {
+            logger.error(e.getMessage(), e);
+            undeployAllPolicies(pdp);
+            throw new C2SAuditException(e.getMessage(), e);
+        }
+    }
+
+    private void undeployAllPolicies(PDP pdp) {
+        final PolicyRepository repo = (PolicyRepository) pdp
+                .getPolicyRepository();
+        final List<Evaluatable> policies = new LinkedList<Evaluatable>(
+                repo.getDeployment());
+        for (final Evaluatable policy : policies) {
+            repo.undeploy(policy.getId());
+        }
+    }
+
+    private void auditPolicy(Evaluatable policy, XacmlRequestDto xacmlRequest)
+            throws WritingException, IOException, DocumentAccessorException,
+            AuditException {
+        final StringWriter writer = new StringWriter();
+        PolicyMarshaller.marshal(policy, writer);
+        final Map<PredicateKey, String> predicateMap = auditService
+                .createPredicateMap();
+        final String policyString = writer.toString();
+        writer.close();
+        final NodeList policyIdNodeList = documentAccessor.getNodeList(
+                documentXmlConverter.loadDocument(policyString), "//@PolicyId");
+        Set<String> policyIdSet = null;
+        if (policyIdNodeList.getLength() > 0) {
+            policyIdSet = new HashSet<String>();
+            for (int i = 0; i < policyIdNodeList.getLength(); i++) {
+                policyIdSet.add(policyIdNodeList.item(i).getNodeValue());
+            }
+        }
+        predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY, policyString);
+        if (policyIdSet != null) {
+            predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY_ID, policyIdSet.toString());
+        }
+        auditService.audit(this, xacmlRequest.getMessageId(), ContextHandlerAuditVerb.DEPLOY_POLICY,
+                xacmlRequest.getPatientId().getExtension(), predicateMap);
+    }
+
+    private String createPDPRequestLogMessage(RequestType request) {
+        val logMsgPrefix = "PDP Request: ";
+        val errMsg = "Failed during marshalling PDP Request";
+        try (val baos = new ByteArrayOutputStream()) {
+            RequestMarshaller.marshal(request, baos);
+            return new StringBuilder().append(logMsgPrefix).append(new String(baos.toByteArray())).toString();
+        } catch (Exception e) {
+            logger.error(() -> new StringBuilder().append(errMsg).append(" : ").append(e.getMessage()).toString());
+        }
+        return logMsgPrefix + errMsg;
+    }
 }
