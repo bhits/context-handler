@@ -26,7 +26,6 @@
 package gov.samhsa.c2s.contexthandler.service.util;
 
 import gov.samhsa.c2s.contexthandler.service.dto.PdpAttributesDto;
-import gov.samhsa.c2s.contexthandler.service.dto.PdpRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.mhc.common.document.transformer.XmlTransformer;
 import gov.samhsa.mhc.common.log.Logger;
