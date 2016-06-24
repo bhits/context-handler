@@ -4,8 +4,8 @@ import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gov.samhsa.mhc.common.log.Logger;
+import gov.samhsa.mhc.common.log.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +31,8 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
             xacmlRequest.setMessageId(UUID.randomUUID().toString());
             final XacmlResponseDto xacmlResponse = policyDesicionPointService
                     .evaluateRequest(xacmlRequest);
-            logger.debug("PDP Decision: " + xacmlResponse.getPdpDecision());
-            logger.debug( "PDP Obligations: ", xacmlResponse.getPdpObligations().toString());
+            logger.debug(() -> "PDP Decision: " + xacmlResponse.getPdpDecision());
+            logger.debug( () -> "PDP Obligations: " + xacmlResponse.getPdpObligations().toString());
             return xacmlResponse;
         } catch (final NoPolicyFoundException e) {
             List<String> pdpObligations = new ArrayList<String>();

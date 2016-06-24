@@ -44,6 +44,12 @@ mhc:
           deny-overrides: urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides
           only-one-applicable: urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:only-one-applicable
           permit-overrides: urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:permit-overrides
+    pdpRequest:
+      resource:
+        typeCode: 34133-9
+        status: urn:oasis:names:tc:ebxml-regrep:StatusType:Approved
+      action:
+        actionId: pepaccess
 ---
 spring.profiles: ssl
 server:

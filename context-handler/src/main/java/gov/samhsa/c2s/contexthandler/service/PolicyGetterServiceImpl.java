@@ -33,7 +33,9 @@ public class PolicyGetterServiceImpl implements PolicyGetterService {
     //TODO : Need to add more filter items like not to get revoke , expire policy etc..
     public static final String SQL_GET_XACML_CONSENT_WC = "select consent.consent_reference_id, consent.xacml_ccd  "
             + " from consent "
-            + " where consent.consent_reference_id like ?";
+            + " where consent.consent_reference_id like ?"
+            + " and consent.status = 'CONSENT_SIGNED'"
+            + " and now() between consent.start_date and consent.end_date";
 
 
     /** The logger. */
