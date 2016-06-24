@@ -70,6 +70,8 @@ server.context-path: /contextHandler
 ---
 spring:
   profiles: docker
+  datasource:
+      url: jdbc:mysql://pcm-db.mhc.com:3306/pcm?autoReconnect=true
 eureka:
   client:
     service-url:
