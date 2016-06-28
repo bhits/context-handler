@@ -31,32 +31,23 @@ import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
-import gov.samhsa.c2s.contexthandler.service.util.DOMUtils;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
-import gov.samhsa.c2s.contexthandler.service.util.PolicyValidationUtils;
-import org.apache.commons.io.IOUtils;
-import org.herasaf.xacml.core.SyntaxException;
+import gov.samhsa.c2s.contexthandler.service.util.PolicyDtoRowMapper;
+import gov.samhsa.mhc.common.log.Logger;
+import gov.samhsa.mhc.common.log.LoggerFactory;
 import org.herasaf.xacml.core.policy.Evaluatable;
-import org.herasaf.xacml.core.policy.PolicyMarshaller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.w3c.dom.Document;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import static gov.samhsa.c2s.contexthandler.service.util.AssertionUtils.assertPoliciesNotEmpty;
 import static gov.samhsa.c2s.contexthandler.service.util.AssertionUtils.assertPolicyId;
-import static gov.samhsa.c2s.contexthandler.service.xacml.XACMLXPath.XPATH_POLICY_SET_ID;
-import static gov.samhsa.c2s.contexthandler.service.xacml.XACMLXPath.XPATH_POLICY_SET_POLICY_COMBINING_ALG_ID;
 
 /**
  * The Class PolRepPolicyProvider.
@@ -64,16 +55,9 @@ import static gov.samhsa.c2s.contexthandler.service.xacml.XACMLXPath.XPATH_POLIC
 @Service
 public class JdbcPolicyProviderImpl implements PolicyProvider {
     /**
-     * The logger.
-     */
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    /**
      * The Constant PERCENTILE.
      */
     private static final String PERCENTILE = "%";
-
-    private static final String POLICY_SET_XML_TEMPLATE_FILE_NAME = "PolicySetTemplate.xml";
 
     /**
      * The Constant DELIMITER_AMPERSAND.
@@ -85,15 +69,6 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
      */
     private static final String DELIMITER_COLON = ":";
 
-    public static final String DEFAULT_ENCODING = "UTF-8";
-    public static final String DEFAULT_WILDCARD = "*";
-
-    private static final String PARAM_NAME_WILDCARD = "wildcard";
-    private static final String PARAM_NAME_FORCE = "force";
-    private static final String PARAM_NAME_POLICY_SET_ID = "policySetId";
-    private static final String PARAM_NAME_POLICY_COMBINING_ALG_ID = "policyCombiningAlgId";
-
-
     /**
      * The pid domain type.
      */
@@ -101,42 +76,68 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
     private String pidDomainType;
 
     @Autowired
-    PolicyCombiningAlgIdValidator policyCombiningAlgIdValidator;
+    private DataSource dataSource;
+
+    private JdbcTemplate jdbcTemplate;
+
+    /**
+     * The signed consent dto row mapper.
+     */
+    @Autowired
+    private PolicyDtoRowMapper policyDtoRowMapper;
 
     @Autowired
-    PolicyGetterService policyGetterService;
+    private XacmlPolicySetService xacmlPolicySetService;
+
+    /**
+     * The Constant SQL_GET_SIGNED_CONSENT.
+     * consent_reference_id, xacml_ccd,consent
+     */
+    //TODO : Need to add more filter items like not to get revoke , expire policy etc..
+    public static final String SQL_GET_XACML_CONSENT_WC = "select consent.consent_reference_id, consent.xacml_ccd  "
+            + " from consent "
+            + " where consent.consent_reference_id like ?"
+            + " and consent.status = 'CONSENT_SIGNED'"
+            + " and now() between consent.start_date and consent.end_date";
+
+
+    /**
+     * The logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+    /**
+     * Gets the jdbc template.
+     *
+     * @return the jdbc template
+     */
+    JdbcTemplate getJdbcTemplate() {
+        return new JdbcTemplate(dataSource);
+
+    }
+
 
     @Override
-    public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest)
-            throws NoPolicyFoundException, PolicyProviderException {
-        try {
-            final String mrn = xacmlRequest.getPatientId().getExtension();
-            final String mrnDomain = xacmlRequest.getPatientId().getRoot();
+    public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException, PolicyProviderException {
 
-            final String policyId = toPolicyId(mrn, mrnDomain,
-                    xacmlRequest.getRecipientNpi(),
-                    xacmlRequest.getIntermediaryNpi());
-            //PolicyDto policyDto = new PolicyDto();
-            final PolicyDto policyDto = getPoliciesCombinedAsPolicySet(policyId, UUID
-                            .randomUUID().toString(),
-                    PolicyCombiningAlgIds.DENY_OVERRIDES.getUrn());
-            final Evaluatable policySet = PolicyMarshaller
-                    .unmarshal(new ByteArrayInputStream(policyDto.getPolicy()));
+        final String mrn = xacmlRequest.getPatientId().getExtension();
+        final String mrnDomain = xacmlRequest.getPatientId().getRoot();
 
+        final String policyId = toPolicyId(mrn, mrnDomain,
+                xacmlRequest.getRecipientNpi(),
+                xacmlRequest.getIntermediaryNpi());
 
-            return Arrays.asList(policySet);
-        } catch (final SyntaxException e) {
-            logger.error(e.getMessage(), e);
-            throw new PolicyProviderException(e.getMessage(), e);
-        } catch (final HttpStatusCodeException e) {
-            logger.error(e.getMessage(), e);
-            if (e.getStatusCode().is4xxClientError()) {
-                logger.info(e.getMessage());
-                throw new NoPolicyFoundException(e.getMessage(), e);
-            } else {
-                throw new PolicyProviderException(e.getMessage(), e);
-            }
-        }
+        // Get all policies from db
+        final PolicyContainerDto policies = getPolicies(policyId);
+
+        //PolicyDto policyDto = new PolicyDto();
+        final Evaluatable policySet = xacmlPolicySetService.getPoliciesCombinedAsPolicySet(policies, UUID
+                        .randomUUID().toString(),
+                PolicyCombiningAlgIds.DENY_OVERRIDES.getUrn());
+
+        return Arrays.asList(policySet);
+
     }
 
     private String toPolicyId(String pid, String pidDomain,
@@ -157,68 +158,13 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
         return policyIdBuilder.toString();
     }
 
-
-    public PolicyDto getPoliciesCombinedAsPolicySet(String policyId, String policySetId, String policyCombiningAlgId) {
-
-        // Validate policyCombiningAlgId
-        policyCombiningAlgId = policyCombiningAlgIdValidator
-                .validateAndReturn(policyCombiningAlgId);
-
-        // Get all policies from db
-        final PolicyContainerDto policies = getPolicies(policyId);
-
-        // Construct a policy set template
-        final Document policySet = initPolicySetTemplate();
-
-        // Set policySetId and policyCombiningAlgId
-        if (!StringUtils.hasText(policySetId)) {
-            policySetId = UUID.randomUUID().toString();
-        }
-        DOMUtils.getNode(policySet, XPATH_POLICY_SET_ID).get()
-                .setNodeValue(policySetId);
-        DOMUtils.getNode(policySet, XPATH_POLICY_SET_POLICY_COMBINING_ALG_ID)
-                .get().setNodeValue(policyCombiningAlgId);
-
-        // Append all policies to the policy set template
-        policies.getPolicies()
-                .stream()
-                .map(PolicyDto::getPolicy)
-                .map(DOMUtils::bytesToDocument)
-                .map(Document::getDocumentElement)
-                .map(policy -> policy.cloneNode(true))
-                .map(clonedPolicy -> policySet.importNode(clonedPolicy, true))
-                .forEach(
-                        importedPolicy -> policySet.getDocumentElement()
-                                .appendChild(importedPolicy));
-
-        // Construct and return the response
-        final PolicyDto response = new PolicyDto();
-        response.setId(policySetId);
-        response.setPolicy(DOMUtils.documentToBytes(policySet));
-        response.setValid(PolicyValidationUtils.validate(response.getPolicy()));
-        logger.debug(new String(response.getPolicy()));
-        return response;
-    }
-
-    private Document initPolicySetTemplate() {
-        byte[] policySetTemplateBytes = null;
-        try {
-            policySetTemplateBytes = IOUtils.toByteArray(getClass()
-                    .getClassLoader().getResourceAsStream(
-                            POLICY_SET_XML_TEMPLATE_FILE_NAME));
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-        return DOMUtils.bytesToDocument(policySetTemplateBytes);
-    }
-
-    public PolicyContainerDto getPolicies(String policyId) {
+    private PolicyContainerDto getPolicies(String policyId) {
 
         // Assert policy id
         assertPolicyId(policyId);
 
         // get policies from pcm database
-        List<PolicyDto> policies = policyGetterService.getPolicies(policyId);
+        List<PolicyDto> policies = getPoliciesFromDb(policyId);
 
         // Assert that at least one policy is found
         assertPoliciesNotEmpty(policies, policyId);
@@ -226,5 +172,16 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
         return PolicyContainerDto.builder().policies(policies).build();
 
     }
+
+    public List<PolicyDto> getPoliciesFromDb(String policyId) {
+        jdbcTemplate = getJdbcTemplate();
+
+        List<PolicyDto> policies = this.jdbcTemplate.query(
+                SQL_GET_XACML_CONSENT_WC, new Object[]{policyId},
+                policyDtoRowMapper);
+        logger.info("Consent is queried.");
+        return policies;
+    }
+
 
 }
