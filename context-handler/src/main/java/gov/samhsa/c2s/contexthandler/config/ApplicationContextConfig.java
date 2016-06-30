@@ -12,6 +12,7 @@ import gov.samhsa.mhc.common.document.transformer.XmlTransformerImpl;
 import gov.samhsa.mhc.common.marshaller.SimpleMarshaller;
 import gov.samhsa.mhc.common.marshaller.SimpleMarshallerImpl;
 import org.herasaf.xacml.core.api.PDP;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
@@ -23,10 +24,11 @@ import static org.herasaf.xacml.core.simplePDP.SimplePDPFactory.getSimplePDP;
 public class ApplicationContextConfig {
 
     @Bean
-    public AuditService auditService() throws AuditException {
-        return new AuditServiceImpl("ContextHandlerAuditService");
+    public AuditService auditService(
+            @Value("${mhc.context-handler.audit-service.host}") String host,
+            @Value("${mhc.context-handler.audit-service.port}") int port) throws AuditException {
+        return new AuditServiceImpl("ContextHandlerAuditService", host, port);
     }
-
 
     @Bean
     public DocumentXmlConverter documentXmlConverter() {
@@ -54,14 +56,14 @@ public class ApplicationContextConfig {
         return getSimplePDP();
     }
 
-/*    <bean id="lobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler">
-    <property name="nativeJdbcExtractor" ref="nativeJdbcExtractor"/>
-    </bean>
-    <bean id="nativeJdbcExtractor"
-    class="org.springframework.jdbc.support.nativejdbc.C3P0NativeJdbcExtractor"
-    lazy-init="true" />*/
+    /*    <bean id="lobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler">
+        <property name="nativeJdbcExtractor" ref="nativeJdbcExtractor"/>
+        </bean>
+        <bean id="nativeJdbcExtractor"
+        class="org.springframework.jdbc.support.nativejdbc.C3P0NativeJdbcExtractor"
+        lazy-init="true" />*/
     @Bean
-    public LobHandler lobHandler(){
+    public LobHandler lobHandler() {
         DefaultLobHandler defaultLobHandler = new DefaultLobHandler();
         defaultLobHandler.setStreamAsLob(true);
         return defaultLobHandler;

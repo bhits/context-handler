@@ -50,6 +50,9 @@ mhc:
         status: urn:oasis:names:tc:ebxml-regrep:StatusType:Approved
       action:
         actionId: pepaccess
+    audit-service:
+      host: BHITSDEVACS01
+      port: 9630
 ---
 spring.profiles: ssl
 server:
