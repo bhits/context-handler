@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
 @XmlEnum
 public enum SubjectPurposeOfUse {
     @XmlEnumValue("TREATMENT")
-    TREATMENT("TREATMENT"),
+    HEALTHCARE_TREATMENT("TREATMENT"),
     @XmlEnumValue("PAYMENT")
     PAYMENT("PAYMENT"),
     @XmlEnumValue("RESEARCH")
