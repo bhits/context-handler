@@ -51,11 +51,6 @@ public class ApplicationContextConfig {
         return new XmlTransformerImpl(simpleMarshaller());
     }
 
-    @Bean
-    public PDP pdp() {
-        return getSimplePDP();
-    }
-
     /*    <bean id="lobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler">
         <property name="nativeJdbcExtractor" ref="nativeJdbcExtractor"/>
         </bean>

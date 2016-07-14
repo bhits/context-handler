@@ -56,10 +56,14 @@ import org.herasaf.xacml.core.policy.Evaluatable;
 import org.herasaf.xacml.core.policy.PolicyMarshaller;
 import org.herasaf.xacml.core.policy.impl.AttributeAssignmentType;
 import org.herasaf.xacml.core.policy.impl.ObligationType;
+import org.herasaf.xacml.core.simplePDP.SimplePDP;
+import org.herasaf.xacml.core.simplePDP.SimplePDPFactory;
+import org.herasaf.xacml.core.simplePDP.initializers.InitializerExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.NodeList;
 
+import javax.annotation.PostConstruct;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -103,11 +107,6 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     @Autowired
     private DocumentXmlConverter documentXmlConverter;
 
-    // to initialize herasaf context
-    @Autowired
-    private PDP pdp;
-
-
     @Override
     public XacmlResponseDto evaluateRequest(XacmlRequestDto xacmlRequest)
             throws C2SAuditException, NoPolicyFoundException,
@@ -120,10 +119,17 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
         return managePoliciesAndEvaluateRequest(request, xacmlRequest);
     }
 
+    @PostConstruct
+    public void afterPropertiesSet(){
+        // initialize herasaf
+        InitializerExecutor.runInitializers();
+    }
+
     private synchronized XacmlResponseDto managePoliciesAndEvaluateRequest(
             RequestType request, XacmlRequestDto xacmlRequest)
             throws C2SAuditException, NoPolicyFoundException,
             PolicyProviderException {
+        PDP pdp = getSimplePDP();
         deployPolicies(pdp, xacmlRequest);
         return managePoliciesAndEvaluateRequest(pdp, request);
     }
@@ -249,5 +255,9 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
             logger.error(() -> new StringBuilder().append(errMsg).append(" : ").append(e.getMessage()).toString());
         }
         return logMsgPrefix + errMsg;
+    }
+
+    private PDP getSimplePDP(){
+        return SimplePDPFactory.getSimplePDP();
     }
 }
