@@ -42,7 +42,6 @@ import gov.samhsa.mhc.common.document.converter.DocumentXmlConverter;
 import gov.samhsa.mhc.common.document.converter.DocumentXmlConverterException;
 import gov.samhsa.mhc.common.log.Logger;
 import gov.samhsa.mhc.common.log.LoggerFactory;
-import lombok.val;
 import org.herasaf.xacml.core.WritingException;
 import org.herasaf.xacml.core.api.PDP;
 import org.herasaf.xacml.core.api.PolicyRepository;
@@ -56,7 +55,6 @@ import org.herasaf.xacml.core.policy.Evaluatable;
 import org.herasaf.xacml.core.policy.PolicyMarshaller;
 import org.herasaf.xacml.core.policy.impl.AttributeAssignmentType;
 import org.herasaf.xacml.core.policy.impl.ObligationType;
-import org.herasaf.xacml.core.simplePDP.SimplePDP;
 import org.herasaf.xacml.core.simplePDP.SimplePDPFactory;
 import org.herasaf.xacml.core.simplePDP.initializers.InitializerExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,7 +118,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     }
 
     @PostConstruct
-    public void afterPropertiesSet(){
+    public void afterPropertiesSet() {
         // initialize herasaf
         InitializerExecutor.runInitializers();
     }
@@ -159,7 +157,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     private XacmlResponseDto evaluateRequest(PDP simplePDP, RequestType request) {
         //final XacmlResponseDto xacmlResponse = new XacmlResponseDto();
         List<String> pdpObligations = new ArrayList<String>();
-        val xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations(pdpObligations).build();
+        final XacmlResponseDto xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations(pdpObligations).build();
 
         final ResponseType response = simplePDP.evaluate(request);
         for (final ResultType r : response.getResults()) {
@@ -246,9 +244,9 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     }
 
     private String createPDPRequestLogMessage(RequestType request) {
-        val logMsgPrefix = "PDP Request: ";
-        val errMsg = "Failed during marshalling PDP Request";
-        try (val baos = new ByteArrayOutputStream()) {
+        final String logMsgPrefix = "PDP Request: ";
+        final String errMsg = "Failed during marshalling PDP Request";
+        try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             RequestMarshaller.marshal(request, baos);
             return new StringBuilder().append(logMsgPrefix).append(new String(baos.toByteArray())).toString();
         } catch (Exception e) {
@@ -257,7 +255,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
         return logMsgPrefix + errMsg;
     }
 
-    private PDP getSimplePDP(){
+    private PDP getSimplePDP() {
         return SimplePDPFactory.getSimplePDP();
     }
 }

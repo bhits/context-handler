@@ -1,17 +1,17 @@
 /*******************************************************************************
  * Open Behavioral Health Information Technology Architecture (OBHITA.org)
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the <organization> nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the <organization> nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -32,7 +32,6 @@ import gov.samhsa.mhc.common.document.transformer.XmlTransformer;
 import gov.samhsa.mhc.common.log.Logger;
 import gov.samhsa.mhc.common.log.LoggerFactory;
 import gov.samhsa.mhc.common.marshaller.SimpleMarshaller;
-import lombok.val;
 import org.herasaf.xacml.core.SyntaxException;
 import org.herasaf.xacml.core.context.RequestMarshaller;
 import org.herasaf.xacml.core.context.impl.RequestType;
@@ -41,7 +40,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,157 +47,147 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
 /**
  * The Class RequestGenerator.
  */
 @Component
 public class RequestGenerator {
 
-	/** The logger. */
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	/** The xml transformer. */
-	@Autowired
-	private XmlTransformer xmlTransformer;
-
+    /** The logger. */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final String PDPREQUESTXSLNAME = "pdpRequest.xsl";
+    /** The xml transformer. */
+    @Autowired
+    private XmlTransformer xmlTransformer;
     @Autowired
     private SimpleMarshaller simpleMarshaller;
+    @Value("${mhc.context-handler.pdpRequest.resource.typeCode}")
+    private String resourceTypeCode;
+    @Value("${mhc.context-handler.pdpRequest.resource.status}")
+    private String resourceStatus;
+    @Value("${mhc.context-handler.pdpRequest.action.actionId}")
+    private String actionId;
+    Function<XacmlRequestDto, PdpRequestDto> XacmlRequestDtoToPdpRequestDto = new Function<XacmlRequestDto, PdpRequestDto>() {
+        @Override
+        public PdpRequestDto apply(XacmlRequestDto xacmlRequestDto) {
+            PdpRequestDto pdpRequestDto = new PdpRequestDto();
 
-	@Value("${mhc.context-handler.pdpRequest.resource.typeCode}")
-	private String resourceTypeCode;
+            //setting subject attributes
+            List<PdpAttributesDto> subjectAttributes = new ArrayList<PdpAttributesDto>();
+            subjectAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.SUBJECT_RECIPIENT.getAttributeId())
+                    .attributeValue(xacmlRequestDto.getRecipientNpi())
+                    .attributeType(PdpAttributeIds.SUBJECT_RECIPIENT.getAttributeType()).build());
+            subjectAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.SUBJECT_INTERMEDIARY.getAttributeId())
+                    .attributeValue(xacmlRequestDto.getIntermediaryNpi())
+                    .attributeType(PdpAttributeIds.SUBJECT_INTERMEDIARY.getAttributeType()).build());
+            subjectAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.SUBJECT_POU.getAttributeId())
+                    .attributeValue(xacmlRequestDto.getPurposeOfUse().getPurpose())
+                    .attributeType(PdpAttributeIds.SUBJECT_POU.getAttributeType()).build());
 
-	@Value("${mhc.context-handler.pdpRequest.resource.status}")
-	private String resourceStatus;
+            pdpRequestDto.setSubjectAttributes(subjectAttributes);
 
-	@Value("${mhc.context-handler.pdpRequest.action.actionId}")
-	private String actionId;
+            //setting Resource attributes
+            List<PdpAttributesDto> resourceAttributes = new ArrayList<PdpAttributesDto>();
+            resourceAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.RESOURCE_TYPECODE.getAttributeId())
+                    .attributeValue(resourceTypeCode)
+                    .attributeType(PdpAttributeIds.RESOURCE_TYPECODE.getAttributeType()).build());
+            resourceAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.RESOURCE_STATUS.getAttributeId())
+                    .attributeValue(resourceStatus)
+                    .attributeType(PdpAttributeIds.RESOURCE_STATUS.getAttributeType()).build());
 
-    private final String PDPREQUESTXSLNAME = "pdpRequest.xsl";
-
-	public RequestType generateRequest(XacmlRequestDto xacmlRequest) {
-		RequestType requestType = null;
-		//XacmlRequest xacmlRequest;
-
-		final String request = generateRequestString(xacmlRequest);
-		final InputStream is = new ByteArrayInputStream(request.getBytes());
-		try {
-			// Need call SimplePDPFactory.getSimplePDP() to use
-			// RequestMarshaller from herasaf
-			requestType = unmarshalRequest(is);
-		} catch (final SyntaxException e) {
-			logger.debug(e.getMessage(), e);
-		}
-		return requestType;
-	}
+            pdpRequestDto.setResourceAttributes(resourceAttributes);
 
 
-	public String generateRequestString(XacmlRequestDto xacmlRequest) {
-		String pdpRequest="";
+            //setting Action attributes
+            List<PdpAttributesDto> actionAttributes = new ArrayList<PdpAttributesDto>();
+            actionAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.ACTION_ACTIONID.getAttributeId())
+                    .attributeValue(actionId)
+                    .attributeType(PdpAttributeIds.ACTION_ACTIONID.getAttributeType()).build());
+            pdpRequestDto.setActionAttributes(actionAttributes);
+
+            //setting Environment attributes
+            List<PdpAttributesDto> envAttributes = new ArrayList<PdpAttributesDto>();
+            envAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.Environment_CURRENTDATETIME.getAttributeId())
+                    .attributeValue(getDate())
+                    .attributeType(PdpAttributeIds.Environment_CURRENTDATETIME.getAttributeType()).build());
+            pdpRequestDto.setEnvironmentAttributes(envAttributes);
+
+
+            return pdpRequestDto;
+        }
+    };
+
+    public RequestType generateRequest(XacmlRequestDto xacmlRequest) {
+        RequestType requestType = null;
+        //XacmlRequest xacmlRequest;
+
+        final String request = generateRequestString(xacmlRequest);
+        final InputStream is = new ByteArrayInputStream(request.getBytes());
+        try {
+            // Need call SimplePDPFactory.getSimplePDP() to use
+            // RequestMarshaller from herasaf
+            requestType = unmarshalRequest(is);
+        } catch (final SyntaxException e) {
+            logger.debug(e.getMessage(), e);
+        }
+        return requestType;
+    }
+
+    public String generateRequestString(XacmlRequestDto xacmlRequest) {
+        String pdpRequest = "";
         final ClassLoader classLoader = Thread.currentThread()
                 .getContextClassLoader();
-		try {
+        try {
             PdpRequestDto pdpRequestDto = convertToPdpRequestDto(xacmlRequest);
 
             logger.debug(() -> createPDPRequestDtoLogMessage(pdpRequestDto));
 
-			pdpRequest = xmlTransformer.transform( pdpRequestDto,
+            pdpRequest = xmlTransformer.transform(pdpRequestDto,
                     classLoader.getResource(PDPREQUESTXSLNAME).toString()
-                    , Optional.empty(),Optional.empty());
+                    , Optional.empty(), Optional.empty());
  /*           pdpRequest = generateRequestString(xacmlRequest.getRecipientNpi(),
                                                 xacmlRequest.getIntermediaryNpi(), xacmlRequest.getPurposeOfUse().name(), xacmlRequest.getPatientId().getExtension() );
 */
-		} catch (final Exception e) {
-			e.printStackTrace();
-		}
-		return pdpRequest;
-	}
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+        return pdpRequest;
+    }
 
+    private PdpRequestDto convertToPdpRequestDto(XacmlRequestDto xacmlRequestDto) {
+        PdpRequestDto pdpRequestDto = XacmlRequestDtoToPdpRequestDto.apply(xacmlRequestDto);
 
+        return pdpRequestDto;
+    }
 
+    /**
+     * Gets the current date.
+     *
+     * @return the date
+     */
+    public String getDate() {
+        final SimpleDateFormat sdf = new SimpleDateFormat(
+                "yyyy-MM-dd'T'HH:mm:ssZ");
+        return sdf.format(new Date());
+    }
 
-	private PdpRequestDto convertToPdpRequestDto(XacmlRequestDto xacmlRequestDto) {
-		PdpRequestDto pdpRequestDto = XacmlRequestDtoToPdpRequestDto.apply(xacmlRequestDto);
-
-		return pdpRequestDto;
-	}
-
-	Function<XacmlRequestDto, PdpRequestDto> XacmlRequestDtoToPdpRequestDto = new Function<XacmlRequestDto, PdpRequestDto>() {
-		@Override
-		public PdpRequestDto apply(XacmlRequestDto xacmlRequestDto) {
-			PdpRequestDto pdpRequestDto = new PdpRequestDto();
-
-			//setting subject attributes
-			List<PdpAttributesDto> subjectAttributes = new ArrayList<PdpAttributesDto>();
-			subjectAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.SUBJECT_RECIPIENT.getAttributeId())
-			                          .attributeValue(xacmlRequestDto.getRecipientNpi())
-			                          .attributeType(PdpAttributeIds.SUBJECT_RECIPIENT.getAttributeType()).build());
-			subjectAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.SUBJECT_INTERMEDIARY.getAttributeId())
-					.attributeValue(xacmlRequestDto.getIntermediaryNpi())
-					.attributeType(PdpAttributeIds.SUBJECT_INTERMEDIARY.getAttributeType()).build());
-			subjectAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.SUBJECT_POU.getAttributeId())
-					.attributeValue(xacmlRequestDto.getPurposeOfUse().getPurpose())
-					.attributeType(PdpAttributeIds.SUBJECT_POU.getAttributeType()).build());
-
-			pdpRequestDto.setSubjectAttributes(subjectAttributes);
-
-			//setting Resource attributes
-			List<PdpAttributesDto> resourceAttributes = new ArrayList<PdpAttributesDto>();
-			resourceAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.RESOURCE_TYPECODE.getAttributeId())
-					.attributeValue(resourceTypeCode)
-					.attributeType(PdpAttributeIds.RESOURCE_TYPECODE.getAttributeType()).build());
-			resourceAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.RESOURCE_STATUS.getAttributeId())
-					.attributeValue(resourceStatus)
-					.attributeType(PdpAttributeIds.RESOURCE_STATUS.getAttributeType()).build());
-
-			pdpRequestDto.setResourceAttributes(resourceAttributes);
-
-
-			//setting Action attributes
-			List<PdpAttributesDto> actionAttributes = new ArrayList<PdpAttributesDto>();
-			actionAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.ACTION_ACTIONID.getAttributeId())
-					.attributeValue(actionId)
-					.attributeType(PdpAttributeIds.ACTION_ACTIONID.getAttributeType()).build());
-			pdpRequestDto.setActionAttributes(actionAttributes);
-
-			//setting Environment attributes
-			List<PdpAttributesDto> envAttributes = new ArrayList<PdpAttributesDto>();
-			envAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.Environment_CURRENTDATETIME.getAttributeId())
-					.attributeValue(getDate())
-					.attributeType(PdpAttributeIds.Environment_CURRENTDATETIME.getAttributeType()).build());
-			pdpRequestDto.setEnvironmentAttributes(envAttributes);
-
-
-			return pdpRequestDto;
-		}
-	};
-
-	/**
-	 * Gets the current date.
-	 *
-	 * @return the date
-	 */
-	public String getDate() {
-		final SimpleDateFormat sdf = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssZ");
-		return sdf.format(new Date());
-	}
-
-	/**
-	 * Unmarshal request.
-	 *
-	 * @param inputStream
-	 *            the input stream
-	 * @return the request type
-	 * @throws SyntaxException
-	 *             the syntax exception
-	 */
-	RequestType unmarshalRequest(InputStream inputStream)
-			throws SyntaxException {
-		return RequestMarshaller.unmarshal(inputStream);
-	}
+    /**
+     * Unmarshal request.
+     *
+     * @param inputStream
+     *            the input stream
+     * @return the request type
+     * @throws SyntaxException
+     *             the syntax exception
+     */
+    RequestType unmarshalRequest(InputStream inputStream)
+            throws SyntaxException {
+        return RequestMarshaller.unmarshal(inputStream);
+    }
 
 /*
-	public static void main(String[] args) throws UnsupportedEncodingException,
+    public static void main(String[] args) throws UnsupportedEncodingException,
 	SyntaxException {
 		final PDP pdp = SimplePDPFactory.getSimplePDP();
 		//final String workingreq = "<xacml-context:Request xmlns:xacml-context=\"urn:oasis:names:tc:xacml:2.0:context:schema:os\"><xacml-context:Subject SubjectCategory=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\"><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject:subject-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>Mie Physician</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:2.0:subject:role\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>Administrator</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xspa:1.0:subject:organization\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>MIE</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xspa:1.0:subject:organization-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>2.16.840.1.113883.3.704.1.100.102</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xspa:1.0:subject:purposeofuse\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>TREATMENT</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>2222222222</xacml-context:AttributeValue></xacml-context:Attribute><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>1427467752</xacml-context:AttributeValue></xacml-context:Attribute></xacml-context:Subject><Resource xmlns=\"urn:oasis:names:tc:xacml:2.0:context:schema:os\"><Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:typeCode\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" XdsId=\"urn:uuid:f0306f51-975f-434e-a61c-c59651d33983\"><AttributeValue>34133-9</AttributeValue></Attribute><Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:practiceSettingCode\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" XdsId=\"urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead\"><AttributeValue>Home</AttributeValue></Attribute><Attribute AttributeId=\"xacml:status\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" XdsId=\"status\"><AttributeValue>urn:oasis:names:tc:ebxml-regrep:StatusType:Approved</AttributeValue></Attribute></Resource><xacml-context:Action><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\"><xacml-context:AttributeValue>xdsquery</xacml-context:AttributeValue></xacml-context:Attribute></xacml-context:Action><xacml-context:Environment><xacml-context:Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:environment:current-dateTime\" DataType=\"http://www.w3.org/2001/XMLSchema#dateTime\"><xacml-context:AttributeValue>2014-08-18T18:45:12.633Z</xacml-context:AttributeValue></xacml-context:Attribute></xacml-context:Environment></xacml-context:Request>";
@@ -226,12 +214,11 @@ public class RequestGenerator {
 */
 
 
+    private String createPDPRequestDtoLogMessage(PdpRequestDto request) {
 
-    private String createPDPRequestDtoLogMessage(PdpRequestDto  request) {
-
-        val logMsgPrefix = "PDP Request DTO: ";
-        val errMsg = "Failed during marshalling PDP Request DTO";
-        try (val baos = new ByteArrayOutputStream()) {
+        final String logMsgPrefix = "PDP Request DTO: ";
+        final String errMsg = "Failed during marshalling PDP Request DTO";
+        try {
             return new StringBuilder().append(logMsgPrefix).append(simpleMarshaller.marshal(request)).toString();
         } catch (Exception e) {
             logger.error(() -> new StringBuilder().append(errMsg).append(" : ").append(e.getMessage()).toString());
