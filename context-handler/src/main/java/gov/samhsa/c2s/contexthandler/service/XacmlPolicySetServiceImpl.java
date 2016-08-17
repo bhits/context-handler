@@ -55,7 +55,7 @@ public class XacmlPolicySetServiceImpl implements XacmlPolicySetService {
     /**
      * The pid domain type.
      */
-    @Value("${mhc.context-handler.pid.type}")
+    @Value("${c2s.context-handler.pid.type}")
     private String pidDomainType;
 
     @Autowired

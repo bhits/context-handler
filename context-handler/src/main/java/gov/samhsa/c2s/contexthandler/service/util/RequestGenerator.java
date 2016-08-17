@@ -62,11 +62,11 @@ public class RequestGenerator {
     private XmlTransformer xmlTransformer;
     @Autowired
     private SimpleMarshaller simpleMarshaller;
-    @Value("${mhc.context-handler.pdpRequest.resource.typeCode}")
+    @Value("${c2s.context-handler.pdpRequest.resource.typeCode}")
     private String resourceTypeCode;
-    @Value("${mhc.context-handler.pdpRequest.resource.status}")
+    @Value("${c2s.context-handler.pdpRequest.resource.status}")
     private String resourceStatus;
-    @Value("${mhc.context-handler.pdpRequest.action.actionId}")
+    @Value("${c2s.context-handler.pdpRequest.action.actionId}")
     private String actionId;
     Function<XacmlRequestDto, PdpRequestDto> XacmlRequestDtoToPdpRequestDto = new Function<XacmlRequestDto, PdpRequestDto>() {
         @Override

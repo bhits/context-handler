@@ -25,8 +25,8 @@ public class ApplicationContextConfig {
 
     @Bean
     public AuditService auditService(
-            @Value("${mhc.context-handler.audit-service.host}") String host,
-            @Value("${mhc.context-handler.audit-service.port}") int port) throws AuditException {
+            @Value("${c2s.context-handler.audit-service.host}") String host,
+            @Value("${c2s.context-handler.audit-service.port}") int port) throws AuditException {
         return new AuditServiceImpl("ContextHandlerAuditService", host, port);
     }
 

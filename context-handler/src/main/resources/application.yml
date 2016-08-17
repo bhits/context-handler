@@ -1,7 +1,7 @@
 server:
   port: 8454
 logging:
-  file: /java/MHC_LOGS/context-handler/context-handler.log
+  file: /java/C2S_LOGS/context-handler/context-handler.log
   level: debug
 info:
   component: context handler API
@@ -32,7 +32,7 @@ spring:
     time-between-eviction-runs-millis: 1800000
     num-tests-per-eviction-run: 3
     min-evictable-idle-time-millis: 1800000
-mhc:
+c2s:
   context-handler:
     pid.type: ISO
     polrep:
@@ -74,10 +74,10 @@ server.context-path: /contextHandler
 spring:
   profiles: docker
   datasource:
-      url: jdbc:mysql://pcm-db.mhc.com:3306/pcm?autoReconnect=true
+      url: jdbc:mysql://pcm-db.c2s.com:3306/pcm?autoReconnect=true
 eureka:
   client:
     service-url:
-      defaultZone: https://discovery-server.mhc.com:8761/eureka/
+      defaultZone: https://discovery-server.c2s.com:8761/eureka/
   instance:
     prefer-ip-address: true
