@@ -81,3 +81,7 @@ eureka:
       defaultZone: https://discovery-server.mhc.com:8761/eureka/
   instance:
     prefer-ip-address: true
+mhc:
+  context-handler:
+    audit-service:
+      host: audit-service.mhc.com
