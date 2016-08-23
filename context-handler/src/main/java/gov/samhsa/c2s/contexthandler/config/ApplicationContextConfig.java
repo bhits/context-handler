@@ -1,16 +1,16 @@
 package gov.samhsa.c2s.contexthandler.config;
 
 import ch.qos.logback.audit.AuditException;
-import gov.samhsa.mhc.common.audit.AuditService;
-import gov.samhsa.mhc.common.audit.AuditServiceImpl;
-import gov.samhsa.mhc.common.document.accessor.DocumentAccessor;
-import gov.samhsa.mhc.common.document.accessor.DocumentAccessorImpl;
-import gov.samhsa.mhc.common.document.converter.DocumentXmlConverter;
-import gov.samhsa.mhc.common.document.converter.DocumentXmlConverterImpl;
-import gov.samhsa.mhc.common.document.transformer.XmlTransformer;
-import gov.samhsa.mhc.common.document.transformer.XmlTransformerImpl;
-import gov.samhsa.mhc.common.marshaller.SimpleMarshaller;
-import gov.samhsa.mhc.common.marshaller.SimpleMarshallerImpl;
+import gov.samhsa.c2s.common.audit.AuditService;
+import gov.samhsa.c2s.common.audit.AuditServiceImpl;
+import gov.samhsa.c2s.common.document.accessor.DocumentAccessor;
+import gov.samhsa.c2s.common.document.accessor.DocumentAccessorImpl;
+import gov.samhsa.c2s.common.document.converter.DocumentXmlConverter;
+import gov.samhsa.c2s.common.document.converter.DocumentXmlConverterImpl;
+import gov.samhsa.c2s.common.document.transformer.XmlTransformer;
+import gov.samhsa.c2s.common.document.transformer.XmlTransformerImpl;
+import gov.samhsa.c2s.common.marshaller.SimpleMarshaller;
+import gov.samhsa.c2s.common.marshaller.SimpleMarshallerImpl;
 import org.herasaf.xacml.core.api.PDP;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
