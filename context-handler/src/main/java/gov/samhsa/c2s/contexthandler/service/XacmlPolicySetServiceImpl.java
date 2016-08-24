@@ -6,8 +6,8 @@ import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import gov.samhsa.c2s.contexthandler.service.util.DOMUtils;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyValidationUtils;
-import gov.samhsa.mhc.common.log.Logger;
-import gov.samhsa.mhc.common.log.LoggerFactory;
+import gov.samhsa.c2s.common.log.Logger;
+import gov.samhsa.c2s.common.log.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.herasaf.xacml.core.SyntaxException;
 import org.herasaf.xacml.core.policy.Evaluatable;
@@ -55,7 +55,7 @@ public class XacmlPolicySetServiceImpl implements XacmlPolicySetService {
     /**
      * The pid domain type.
      */
-    @Value("${mhc.context-handler.pid.type}")
+    @Value("${c2s.context-handler.pid.type}")
     private String pidDomainType;
 
     @Autowired

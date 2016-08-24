@@ -28,10 +28,10 @@ package gov.samhsa.c2s.contexthandler.service.util;
 import gov.samhsa.c2s.contexthandler.service.dto.PdpAttributesDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PdpRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
-import gov.samhsa.mhc.common.document.transformer.XmlTransformer;
-import gov.samhsa.mhc.common.log.Logger;
-import gov.samhsa.mhc.common.log.LoggerFactory;
-import gov.samhsa.mhc.common.marshaller.SimpleMarshaller;
+import gov.samhsa.c2s.common.document.transformer.XmlTransformer;
+import gov.samhsa.c2s.common.log.Logger;
+import gov.samhsa.c2s.common.log.LoggerFactory;
+import gov.samhsa.c2s.common.marshaller.SimpleMarshaller;
 import org.herasaf.xacml.core.SyntaxException;
 import org.herasaf.xacml.core.context.RequestMarshaller;
 import org.herasaf.xacml.core.context.impl.RequestType;
@@ -62,11 +62,11 @@ public class RequestGenerator {
     private XmlTransformer xmlTransformer;
     @Autowired
     private SimpleMarshaller simpleMarshaller;
-    @Value("${mhc.context-handler.pdpRequest.resource.typeCode}")
+    @Value("${c2s.context-handler.pdpRequest.resource.typeCode}")
     private String resourceTypeCode;
-    @Value("${mhc.context-handler.pdpRequest.resource.status}")
+    @Value("${c2s.context-handler.pdpRequest.resource.status}")
     private String resourceStatus;
-    @Value("${mhc.context-handler.pdpRequest.action.actionId}")
+    @Value("${c2s.context-handler.pdpRequest.action.actionId}")
     private String actionId;
     Function<XacmlRequestDto, PdpRequestDto> XacmlRequestDtoToPdpRequestDto = new Function<XacmlRequestDto, PdpRequestDto>() {
         @Override

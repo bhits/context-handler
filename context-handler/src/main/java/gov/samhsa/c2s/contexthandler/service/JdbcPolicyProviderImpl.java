@@ -33,8 +33,8 @@ import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyDtoRowMapper;
-import gov.samhsa.mhc.common.log.Logger;
-import gov.samhsa.mhc.common.log.LoggerFactory;
+import gov.samhsa.c2s.common.log.Logger;
+import gov.samhsa.c2s.common.log.LoggerFactory;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,7 +72,7 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
     /**
      * The pid domain type.
      */
-    @Value("${mhc.context-handler.pid.type}")
+    @Value("${c2s.context-handler.pid.type}")
     private String pidDomainType;
 
     @Autowired

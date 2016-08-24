@@ -4,8 +4,8 @@ import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
-import gov.samhsa.mhc.common.log.Logger;
-import gov.samhsa.mhc.common.log.LoggerFactory;
+import gov.samhsa.c2s.common.log.Logger;
+import gov.samhsa.c2s.common.log.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

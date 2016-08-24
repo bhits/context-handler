@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 
 
 @Component
-@ConfigurationProperties(prefix = "mhc.context-handler.polrep.policySet")
+@ConfigurationProperties(prefix = "c2s.context-handler.polrep.policySet")
 public class PolicyCombiningAlgIdValidatorImpl implements
 		PolicyCombiningAlgIdValidator {
 
