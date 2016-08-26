@@ -81,7 +81,7 @@ eureka:
       defaultZone: https://discovery-server.c2s.com:8761/eureka/
   instance:
     prefer-ip-address: true
-mhc:
+c2s:
   context-handler:
     audit-service:
-      host: audit-service.mhc.com
+      host: audit-service.c2s.com
