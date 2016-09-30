@@ -14,7 +14,8 @@ eureka:
     healthcheck:
       enabled: true
     service-url:
-      defaultZone: https://localhost:8761/eureka/
+      # endpoint for discovery-server, pass '--eureka.client.protocol=https' if discovery-server is running on https
+      defaultZone: ${eureka.client.protocol:http}://localhost:8761/eureka/
 # TODO: until finding a better solution, disable hystrix command timeout. See https://github.com/spring-cloud/spring-cloud-netflix/issues/321#issuecomment-97727313
 hystrix.command.default.execution.timeout.enabled: false
 ribbon:
@@ -78,7 +79,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: https://discovery-server.c2s.com:8761/eureka/
+      defaultZone: ${eureka.client.protocol:http}://discovery-server.c2s.com:8761/eureka/
   instance:
     prefer-ip-address: true
 c2s:
