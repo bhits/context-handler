@@ -1,6 +1,6 @@
 # Context Handler API
 
-The Context Handler (CTX) API is a RESTful web service responsible for making the access decisions (PERMIT/DENY) based on the given consent policy. It uses Policy Decision Point (PDP) to evaluates access requests against authorization policies before issuing access decision.
+The Context Handler (CTX) API is a RESTful web service responsible for making the access decisions (PERMIT/DENY) based on the given request contexts. It uses a Policy Decision Point (PDP) to evaluates access requests against authorization policies before issuing access decisions.The PDP uses [HERAS-AF]( https://bitbucket.org/herasaf/herasaf-xacml-core/overview), an open source XACML 2.0 implementation, for XACML evaluation and uses Patient Consent Management (PCM) database as a local policy repository to retrieve XACML policies that are generated from patients’ consents.
 
 ## Build
 
@@ -26,7 +26,7 @@ To build the project, navigate to the folder that contains `pom.xml` file using 
 
 ### Prerequisites
 
-This API uses Patient Consent Management (PCM)
+This API uses the Patient Consent Management (PCM) database as a local policy repository to retrieve XACML policies, so it needs to have a database user configuration with read privileges to the PCM database. Please see [Configure](#configure) section for details of configuring the data source.
 
 ### Commands
 
@@ -40,7 +40,7 @@ This is a [Spring Boot](https://projects.spring.io/spring-boot/) project and ser
 
 This API runs with some default configuration that is primarily targeted for development environment. However, [Spring Boot](https://projects.spring.io/spring-boot/) supports several methods to override the default configuration to configure the API for a certain deployment environment.
 
-Please see the [default configuration](phr/src/main/resources/application.yml) for this API as a guidance and override the specific configuration per environment as needed. Also, please refer to [Spring Boot Externalized Configuration](http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html) documentation to see how Spring Boot applies the order to load the properties and [Spring Boot Common Properties](http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html) documentation to see the common properties used by Spring Boot.
+Please see the [default configuration](context-handler/src/main/resources/application.yml) for this API as a guidance and override the specific configuration per environment as needed. Also, please refer to [Spring Boot Externalized Configuration](http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html) documentation to see how Spring Boot applies the order to load the properties and [Spring Boot Common Properties](http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html) documentation to see the common properties used by Spring Boot.
 
 ### Examples for Overriding a Configuration in Spring Boot
 
@@ -74,13 +74,13 @@ For simplicity in development and testing environments, SSL is **NOT** enabled b
 
 #### Enable SSL While Running as a Docker Container
 
-+ `docker run -d -v "/path/on/dockerhost/ssl_keystore.keystore:/path/to/ssl_keystore.keystore" bhits/phr:latest --spring.profiles.active=ssl --server.ssl.key-store=/path/to/ssl_keystore.keystore --server.ssl.key-store-password=strongkeystorepassword`
++ `docker run -d -v "/path/on/dockerhost/ssl_keystore.keystore:/path/to/ssl_keystore.keystore" bhits/context-handler:latest --spring.profiles.active=ssl --server.ssl.key-store=/path/to/ssl_keystore.keystore --server.ssl.key-store-password=strongkeystorepassword`
 + In a `docker-compose.yml`, this can be provided as:
 ```yml
 version: '2'
 services:
 ...
-  phr.c2s.com:
+  context-handler.c2s.com:
     image: "bhits/context-handler:latest"
     command: ["--spring.profiles.active=ssl","--server.ssl.key-store=/path/to/ssl_keystore.keystore", "--server.ssl.key-store-password=strongkeystorepassword"]
     volumes:
@@ -108,6 +108,6 @@ If you have any questions, comments, or concerns please see [Consent2Share]() pr
 
 ## Report Issues
 
-Please use [GitHub Issues](https://github.com/bhits/phr-api/issues) page to report issues.
+Please use [GitHub Issues](https://github.com/bhits/context-handler/issues) page to report issues.
 
 [//]: # (License)
