@@ -1,6 +1,6 @@
 # Context Handler API
 
-The Context Handler (CTX) API is a RESTful web service responsible for making the access decisions (PERMIT/DENY) based on the given request contexts. It uses a Policy Decision Point (PDP) to evaluates access requests against authorization policies before issuing access decisions.The PDP uses [HERAS-AF]( https://bitbucket.org/herasaf/herasaf-xacml-core/overview), an open source XACML 2.0 implementation, for XACML evaluation and uses Patient Consent Management (PCM) database as a local policy repository to retrieve XACML policies that are generated from patients’ consents.
+The Context Handler (CTX) API is a RESTful web service responsible for making the access decisions (PERMIT/DENY) based on the given request contexts. It uses a Policy Decision Point (PDP) to evaluate access requests against authorization policies before issuing access decisions. The PDP uses [HERAS-AF](https://bitbucket.org/herasaf/herasaf-xacml-core/overview), an open source XACML 2.0 implementation, for XACML evaluation and uses Patient Consent Management (PCM) database as a local policy repository to retrieve XACML policies that are generated from patients’ consents.
 
 ## Build
 
