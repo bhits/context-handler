@@ -11,32 +11,31 @@ import org.w3c.dom.Document;
 import java.io.ByteArrayInputStream;
 
 
-
 public class PolicyValidationUtils {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(PolicyValidationUtils.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(PolicyValidationUtils.class);
 
-	public static boolean validate(final byte[] policy) {
-		boolean isValid = false;
-		try {
-			final String policyString = new String(policy,
-					DOMUtils.DEFAULT_ENCODING);
-			final Document policyDoc = DOMUtils.bytesToDocument(policy);
-			final Evaluatable policyObj = PolicyMarshaller
-					.unmarshal(new ByteArrayInputStream(policy));
-			Assert.notNull(policyString);
-			Assert.notNull(policyObj);
-			Assert.notNull(policyDoc);
-			isValid = true;
-		} catch (final Exception e) {
-			LOGGER.debug(e.getMessage(), e);
-		}
-		return isValid;
-	}
+    public static boolean validate(final byte[] policy) {
+        boolean isValid = false;
+        try {
+            final String policyString = new String(policy,
+                    DOMUtils.DEFAULT_ENCODING);
+            final Document policyDoc = DOMUtils.bytesToDocument(policy);
+            final Evaluatable policyObj = PolicyMarshaller
+                    .unmarshal(new ByteArrayInputStream(policy));
+            Assert.notNull(policyString);
+            Assert.notNull(policyObj);
+            Assert.notNull(policyDoc);
+            isValid = true;
+        } catch (final Exception e) {
+            LOGGER.debug(e.getMessage(), e);
+        }
+        return isValid;
+    }
 
-	public static PolicyDto validateAndReturn(PolicyDto policyDto) {
-		policyDto.setValid(validate(policyDto.getPolicy()));
-		return policyDto;
-	}
+    public static PolicyDto validateAndReturn(PolicyDto policyDto) {
+        policyDto.setValid(validate(policyDto.getPolicy()));
+        return policyDto;
+    }
 }

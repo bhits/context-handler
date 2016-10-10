@@ -8,24 +8,24 @@ import java.util.List;
 
 public class NVPBuilder {
 
-	private final List<NameValuePair> nvps = new LinkedList<NameValuePair>();
+    private final List<NameValuePair> nvps = new LinkedList<>();
 
-	public NVPBuilder and(String name, String value) {
-		nvps.add(new BasicNameValuePair(name, value));
-		return this;
-	}
+    public static List<NameValuePair> identity() {
+        return new NVPBuilder().build();
+    }
 
-	public List<NameValuePair> build() {
-		return this.nvps;
-	}
+    public static NVPBuilder withParam(String name, String value) {
+        final NVPBuilder builder = new NVPBuilder();
+        return builder.and(name, value);
+    }
 
-	public static List<NameValuePair> identity() {
-		return new NVPBuilder().build();
-	}
+    public NVPBuilder and(String name, String value) {
+        nvps.add(new BasicNameValuePair(name, value));
+        return this;
+    }
 
-	public static NVPBuilder withParam(String name, String value) {
-		final NVPBuilder builder = new NVPBuilder();
-		return builder.and(name, value);
-	}
+    public List<NameValuePair> build() {
+        return this.nvps;
+    }
 
 }
