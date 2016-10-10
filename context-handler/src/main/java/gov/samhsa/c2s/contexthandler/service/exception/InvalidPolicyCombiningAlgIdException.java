@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 public class InvalidPolicyCombiningAlgIdException extends RuntimeException {
 
-    private static final long serialVersionUID = -4102481378552847566L;
-
     public InvalidPolicyCombiningAlgIdException() {
         super();
     }

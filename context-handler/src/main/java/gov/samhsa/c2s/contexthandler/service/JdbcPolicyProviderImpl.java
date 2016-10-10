@@ -76,9 +76,7 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
      * The Constant DELIMITER_COLON.
      */
     private static final String DELIMITER_COLON = ":";
-    /**
-     * The logger.
-     */
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     /**
      * The pid domain type.

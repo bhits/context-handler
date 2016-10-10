@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(value = HttpStatus.PRECONDITION_FAILED)
 public class PolicyIdNotFoundException extends RuntimeException {
 
-    private static final long serialVersionUID = 5542092869875099257L;
-
     public PolicyIdNotFoundException() {
         super();
     }

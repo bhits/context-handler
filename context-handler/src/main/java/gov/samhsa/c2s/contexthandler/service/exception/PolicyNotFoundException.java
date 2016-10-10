@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
 public class PolicyNotFoundException extends RuntimeException {
 
-    private static final long serialVersionUID = 8753419779647540367L;
-
     public PolicyNotFoundException() {
         super();
         // TODO Auto-generated constructor stub

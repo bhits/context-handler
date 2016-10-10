@@ -42,7 +42,6 @@ import java.sql.SQLException;
 @Component
 public class PolicyDtoRowMapper implements RowMapper<PolicyDto> {
 
-    /** The logger. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** The lob handler. */

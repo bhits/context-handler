@@ -43,10 +43,9 @@ public class XacmlPolicySetServiceImpl implements XacmlPolicySetService {
     private static final String PARAM_NAME_FORCE = "force";
     private static final String PARAM_NAME_POLICY_SET_ID = "policySetId";
     private static final String PARAM_NAME_POLICY_COMBINING_ALG_ID = "policyCombiningAlgId";
-    /**
-     * The logger.
-     */
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     PolicyCombiningAlgIdValidator policyCombiningAlgIdValidator;
     /**

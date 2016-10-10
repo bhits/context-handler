@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(value = HttpStatus.PRECONDITION_FAILED)
 public class DOMUtilsException extends RuntimeException {
 
-    private static final long serialVersionUID = -1683604179956248526L;
-
     public DOMUtilsException() {
         super();
     }
