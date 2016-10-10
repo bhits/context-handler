@@ -2,7 +2,6 @@ server:
   port: 8454
 logging:
   file: /java/C2S_LOGS/context-handler/context-handler.log
-  level: debug
 info:
   component: context handler API
 eureka:
@@ -16,12 +15,13 @@ eureka:
     service-url:
       # endpoint for discovery-server, pass '--eureka.client.protocol=https' if discovery-server is running on https
       defaultZone: ${eureka.client.protocol:http}://localhost:8761/eureka/
-# TODO: until finding a better solution, disable hystrix command timeout. See https://github.com/spring-cloud/spring-cloud-netflix/issues/321#issuecomment-97727313
+
 hystrix.command.default.execution.timeout.enabled: false
 ribbon:
   ReadTimeout: 50000
 spring:
   datasource:
+    # configure url, username and password per environment
     url: jdbc:mysql://localhost:3306/pcm?autoReconnect=true
     username: root
     password: admin
@@ -55,8 +55,10 @@ c2s:
       host: BHITSDEVACS01
       port: 9630
 ---
+# enables ssl in this service when activated
 spring.profiles: ssl
 server:
+  # configure keystore and keystore password for ssl per environment
   ssl:
     key-store: /ssl_keystore.keystore
     key-store-password: changeit
@@ -66,12 +68,14 @@ eureka:
     secure-port-enabled: true
     non-secure-port-enabled: false
 ---
+# enables ssl and adds /contextHandler context path when activated
 spring.profiles: standalone-ssl
 spring:
   profiles:
     include: ssl
 server.context-path: /contextHandler
 ---
+# updates configuration for docker environment
 spring:
   profiles: docker
   datasource:
