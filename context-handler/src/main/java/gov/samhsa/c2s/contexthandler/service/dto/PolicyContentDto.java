@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class PolicyContentDto {
 
-	private byte[] policy;
+    private byte[] policy;
 }

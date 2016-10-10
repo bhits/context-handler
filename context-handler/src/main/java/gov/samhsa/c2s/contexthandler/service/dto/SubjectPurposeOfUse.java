@@ -28,9 +28,6 @@ package gov.samhsa.c2s.contexthandler.service.dto;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 
-/**
- * The Enum SubjectPurposeOfUse.
- */
 @XmlEnum
 public enum SubjectPurposeOfUse {
     @XmlEnumValue("TREATMENT")
@@ -44,10 +41,6 @@ public enum SubjectPurposeOfUse {
 
     SubjectPurposeOfUse(String p) {
         purpose = p;
-    }
-
-    public String getPurpose() {
-        return purpose;
     }
 
     public static SubjectPurposeOfUse fromValue(String v) {
@@ -65,5 +58,9 @@ public enum SubjectPurposeOfUse {
         builder.append(purposeOfUse);
         builder.append("' is not defined in this enum.");
         throw new IllegalArgumentException(builder.toString());
+    }
+
+    public String getPurpose() {
+        return purpose;
     }
 }
