@@ -146,7 +146,7 @@ public class RequestGenerator {
                     , Optional.empty(), Optional.empty());
 
         } catch (final Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
         return pdpRequest;
     }
