@@ -8,7 +8,6 @@ public class PolicyNotFoundException extends RuntimeException {
 
     public PolicyNotFoundException() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public PolicyNotFoundException(String message, Throwable cause,
