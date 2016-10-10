@@ -26,14 +26,6 @@
 package gov.samhsa.c2s.contexthandler.service;
 
 import ch.qos.logback.audit.AuditException;
-import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerAuditVerb;
-import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerPredicateKey;
-import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
-import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
-import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
-import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
-import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
-import gov.samhsa.c2s.contexthandler.service.util.RequestGenerator;
 import gov.samhsa.c2s.common.audit.AuditService;
 import gov.samhsa.c2s.common.audit.PredicateKey;
 import gov.samhsa.c2s.common.document.accessor.DocumentAccessor;
@@ -42,6 +34,14 @@ import gov.samhsa.c2s.common.document.converter.DocumentXmlConverter;
 import gov.samhsa.c2s.common.document.converter.DocumentXmlConverterException;
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
+import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerAuditVerb;
+import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerPredicateKey;
+import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
+import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
+import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
+import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
+import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
+import gov.samhsa.c2s.contexthandler.service.util.RequestGenerator;
 import org.herasaf.xacml.core.WritingException;
 import org.herasaf.xacml.core.api.PDP;
 import org.herasaf.xacml.core.api.PolicyRepository;
@@ -73,9 +73,6 @@ import java.util.*;
 @Service
 public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointService {
 
-    /**
-     * The logger.
-     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
@@ -156,7 +153,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
 
     private XacmlResponseDto evaluateRequest(PDP simplePDP, RequestType request) {
         //final XacmlResponseDto xacmlResponse = new XacmlResponseDto();
-        List<String> pdpObligations = new ArrayList<String>();
+        List<String> pdpObligations = new ArrayList<>();
         final XacmlResponseDto xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations(pdpObligations).build();
 
         final ResponseType response = simplePDP.evaluate(request);
@@ -165,7 +162,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
             xacmlResponse.setPdpDecision(r.getDecision().toString());
 
             if (r.getObligations() != null) {
-                final List<String> obligations = new LinkedList<String>();
+                final List<String> obligations = new LinkedList<>();
                 for (final ObligationType o : r.getObligations()
                         .getObligations()) {
                     for (final AttributeAssignmentType a : o
@@ -210,7 +207,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     private void undeployAllPolicies(PDP pdp) {
         final PolicyRepository repo = (PolicyRepository) pdp
                 .getPolicyRepository();
-        final List<Evaluatable> policies = new LinkedList<Evaluatable>(
+        final List<Evaluatable> policies = new LinkedList<>(
                 repo.getDeployment());
         for (final Evaluatable policy : policies) {
             repo.undeploy(policy.getId());
@@ -230,7 +227,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
                 documentXmlConverter.loadDocument(policyString), "//@PolicyId");
         Set<String> policyIdSet = null;
         if (policyIdNodeList.getLength() > 0) {
-            policyIdSet = new HashSet<String>();
+            policyIdSet = new HashSet<>();
             for (int i = 0; i < policyIdNodeList.getLength(); i++) {
                 policyIdSet.add(policyIdNodeList.item(i).getNodeValue());
             }

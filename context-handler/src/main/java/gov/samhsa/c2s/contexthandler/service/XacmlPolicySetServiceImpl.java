@@ -1,13 +1,13 @@
 package gov.samhsa.c2s.contexthandler.service;
 
+import gov.samhsa.c2s.common.log.Logger;
+import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import gov.samhsa.c2s.contexthandler.service.util.DOMUtils;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyValidationUtils;
-import gov.samhsa.c2s.common.log.Logger;
-import gov.samhsa.c2s.common.log.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.herasaf.xacml.core.SyntaxException;
 import org.herasaf.xacml.core.policy.Evaluatable;
@@ -26,47 +26,37 @@ import java.util.UUID;
 import static gov.samhsa.c2s.contexthandler.service.xacml.XACMLXPath.XPATH_POLICY_SET_ID;
 import static gov.samhsa.c2s.contexthandler.service.xacml.XACMLXPath.XPATH_POLICY_SET_POLICY_COMBINING_ALG_ID;
 
-/**
- * Created by sadhana.chandra on 6/24/2016.
- */
 @Service
 public class XacmlPolicySetServiceImpl implements XacmlPolicySetService {
+    public static final String DEFAULT_ENCODING = "UTF-8";
+    public static final String DEFAULT_WILDCARD = "*";
     private static final String POLICY_SET_XML_TEMPLATE_FILE_NAME = "PolicySetTemplate.xml";
-
     /**
      * The Constant DELIMITER_AMPERSAND.
      */
     private static final String DELIMITER_AMPERSAND = "&";
-
     /**
      * The Constant DELIMITER_COLON.
      */
     private static final String DELIMITER_COLON = ":";
-
-    public static final String DEFAULT_ENCODING = "UTF-8";
-    public static final String DEFAULT_WILDCARD = "*";
-
     private static final String PARAM_NAME_WILDCARD = "wildcard";
     private static final String PARAM_NAME_FORCE = "force";
     private static final String PARAM_NAME_POLICY_SET_ID = "policySetId";
     private static final String PARAM_NAME_POLICY_COMBINING_ALG_ID = "policyCombiningAlgId";
-
-
+    /**
+     * The logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    PolicyCombiningAlgIdValidator policyCombiningAlgIdValidator;
     /**
      * The pid domain type.
      */
     @Value("${c2s.context-handler.pid.type}")
     private String pidDomainType;
 
-    @Autowired
-    PolicyCombiningAlgIdValidator policyCombiningAlgIdValidator;
-    /**
-     * The logger.
-     */
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Override
-    public Evaluatable  getPoliciesCombinedAsPolicySet(PolicyContainerDto policies, String policySetId, String policyCombiningAlgId) throws NoPolicyFoundException, PolicyProviderException {
+    public Evaluatable getPoliciesCombinedAsPolicySet(PolicyContainerDto policies, String policySetId, String policyCombiningAlgId) throws NoPolicyFoundException, PolicyProviderException {
         try {
             // Validate policyCombiningAlgId
             policyCombiningAlgId = policyCombiningAlgIdValidator

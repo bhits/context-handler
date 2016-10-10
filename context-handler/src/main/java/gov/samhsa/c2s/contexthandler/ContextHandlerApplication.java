@@ -10,9 +10,9 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 @EnableFeignClients
 public class ContextHandlerApplication {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
 
-		SpringApplication.run(ContextHandlerApplication.class, args);
-	}
+        SpringApplication.run(ContextHandlerApplication.class, args);
+    }
 }

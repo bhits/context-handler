@@ -26,6 +26,8 @@
 package gov.samhsa.c2s.contexthandler.service;
 
 
+import gov.samhsa.c2s.common.log.Logger;
+import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
@@ -33,8 +35,6 @@ import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyDtoRowMapper;
-import gov.samhsa.c2s.common.log.Logger;
-import gov.samhsa.c2s.common.log.LoggerFactory;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,41 +55,6 @@ import static gov.samhsa.c2s.contexthandler.service.util.AssertionUtils.assertPo
 @Service
 public class JdbcPolicyProviderImpl implements PolicyProvider {
     /**
-     * The Constant PERCENTILE.
-     */
-    private static final String PERCENTILE = "%";
-
-    /**
-     * The Constant DELIMITER_AMPERSAND.
-     */
-    private static final String DELIMITER_AMPERSAND = "&";
-
-    /**
-     * The Constant DELIMITER_COLON.
-     */
-    private static final String DELIMITER_COLON = ":";
-
-    /**
-     * The pid domain type.
-     */
-    @Value("${c2s.context-handler.pid.type}")
-    private String pidDomainType;
-
-    @Autowired
-    private DataSource dataSource;
-
-    private JdbcTemplate jdbcTemplate;
-
-    /**
-     * The signed consent dto row mapper.
-     */
-    @Autowired
-    private PolicyDtoRowMapper policyDtoRowMapper;
-
-    @Autowired
-    private XacmlPolicySetService xacmlPolicySetService;
-
-    /**
      * The Constant SQL_GET_SIGNED_CONSENT.
      * consent_reference_id, xacml_ccd,consent
      */
@@ -99,13 +64,37 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
             + " where consent.consent_reference_id like ?"
             + " and consent.status = 'CONSENT_SIGNED'"
             + " and now() between consent.start_date and consent.end_date";
-
-
+    /**
+     * The Constant PERCENTILE.
+     */
+    private static final String PERCENTILE = "%";
+    /**
+     * The Constant DELIMITER_AMPERSAND.
+     */
+    private static final String DELIMITER_AMPERSAND = "&";
+    /**
+     * The Constant DELIMITER_COLON.
+     */
+    private static final String DELIMITER_COLON = ":";
     /**
      * The logger.
      */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    /**
+     * The pid domain type.
+     */
+    @Value("${c2s.context-handler.pid.type}")
+    private String pidDomainType;
+    @Autowired
+    private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
+    /**
+     * The signed consent dto row mapper.
+     */
+    @Autowired
+    private PolicyDtoRowMapper policyDtoRowMapper;
+    @Autowired
+    private XacmlPolicySetService xacmlPolicySetService;
 
     /**
      * Gets the jdbc template.
