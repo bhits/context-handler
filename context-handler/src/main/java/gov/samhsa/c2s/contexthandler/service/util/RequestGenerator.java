@@ -118,13 +118,9 @@ public class RequestGenerator {
 
     public RequestType generateRequest(XacmlRequestDto xacmlRequest) {
         RequestType requestType = null;
-        //XacmlRequest xacmlRequest;
-
         final String request = generateRequestString(xacmlRequest);
         final InputStream is = new ByteArrayInputStream(request.getBytes());
         try {
-            // Need call SimplePDPFactory.getSimplePDP() to use
-            // RequestMarshaller from herasaf
             requestType = unmarshalRequest(is);
         } catch (final SyntaxException e) {
             logger.debug(e.getMessage(), e);
