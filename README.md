@@ -46,11 +46,11 @@ Please see the [default configuration](context-handler/src/main/resources/applic
 
 #### Override a Configuration Using Program Arguments While Running as a JAR:
 
-+ `java -jar context-handler-x.x.x-SNAPSHOT.jar --server.port=80 --spring.datasource.password=strongpassword`
++ `java -jar context-handler-x.x.x-SNAPSHOT.jar --server.port=80 `
 
 #### Override a Configuration Using Program Arguments While Running as a Docker Container:
 
-+ `docker run -d bhits/context-handler:latest --server.port=80 --spring.datasource.password=strongpassword`
++ `docker run -d bhits/context-handler:latest --server.port=80 `
 
 + In a `docker-compose.yml`, this can be provided as:
 ```yml
@@ -59,7 +59,7 @@ services:
 ...
   context-handler.c2s.com:
     image: "bhits/context-handler:latest"
-    command: ["--server.port=80","--spring.datasource.password=strongpassword"]
+    command: ["--server.port=80"]
 ...
 ```
 *NOTE: Please note that these additional arguments will be appended to the default `ENTRYPOINT` specified in the `Dockerfile` unless the `ENTRYPOINT` is overridden.*
