@@ -9,16 +9,20 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name="PatientId")
+@XmlRootElement(name = "PatientId")
 @Data
 public class PatientIdDto {
-    /** The patient id. */
-    @XmlElement(name="Root")
+    /**
+     * The patient id.
+     */
+    @XmlElement(name = "Root")
     @NotBlank
     private String root;
 
-    /** The patient id. */
-    @XmlElement(name="Extension")
+    /**
+     * The patient id.
+     */
+    @XmlElement(name = "Extension")
     @NotBlank
     private String extension;
 }

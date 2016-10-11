@@ -10,22 +10,22 @@ import java.util.List;
 
 public class AssertionUtils {
 
-	public static void assertPoliciesNotEmpty(final List<PolicyDto> policies,
-			final String policyId) {
-		if (policies == null || policies.size() == 0) {
-			final StringBuilder errorBuilder = new StringBuilder();
-			errorBuilder.append(
-					"Policy/PolicySet cannot be found with given ID: ").append(
-					policyId);
-			throw new PolicyNotFoundException(errorBuilder.toString());
-		}
-	}
+    public static void assertPoliciesNotEmpty(final List<PolicyDto> policies,
+                                              final String policyId) {
+        if (policies == null || policies.size() == 0) {
+            final StringBuilder errorBuilder = new StringBuilder();
+            errorBuilder.append(
+                    "Policy/PolicySet cannot be found with given ID: ").append(
+                    policyId);
+            throw new PolicyNotFoundException(errorBuilder.toString());
+        }
+    }
 
-	public static void assertPolicyId(String policyId) {
-		if (!StringUtils.hasText(policyId)) {
-			throw new PolicyIdNotFoundException("Policy ID must have a text!");
-		}
-	}
+    public static void assertPolicyId(String policyId) {
+        if (!StringUtils.hasText(policyId)) {
+            throw new PolicyIdNotFoundException("Policy ID must have a text!");
+        }
+    }
 
 
 }

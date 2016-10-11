@@ -11,14 +11,11 @@ import gov.samhsa.c2s.common.document.transformer.XmlTransformer;
 import gov.samhsa.c2s.common.document.transformer.XmlTransformerImpl;
 import gov.samhsa.c2s.common.marshaller.SimpleMarshaller;
 import gov.samhsa.c2s.common.marshaller.SimpleMarshallerImpl;
-import org.herasaf.xacml.core.api.PDP;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
-
-import static org.herasaf.xacml.core.simplePDP.SimplePDPFactory.getSimplePDP;
 
 @Configuration
 public class ApplicationContextConfig {
@@ -51,12 +48,6 @@ public class ApplicationContextConfig {
         return new XmlTransformerImpl(simpleMarshaller());
     }
 
-    /*    <bean id="lobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler">
-        <property name="nativeJdbcExtractor" ref="nativeJdbcExtractor"/>
-        </bean>
-        <bean id="nativeJdbcExtractor"
-        class="org.springframework.jdbc.support.nativejdbc.C3P0NativeJdbcExtractor"
-        lazy-init="true" />*/
     @Bean
     public LobHandler lobHandler() {
         DefaultLobHandler defaultLobHandler = new DefaultLobHandler();

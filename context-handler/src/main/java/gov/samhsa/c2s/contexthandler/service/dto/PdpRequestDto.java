@@ -9,24 +9,21 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-/**
- * Created by sadhana.chandra on 6/23/2016.
- */
 @Data
 @NoArgsConstructor
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name="PdpRequest")
+@XmlRootElement(name = "PdpRequest")
 public class PdpRequestDto {
 
-    @XmlElement(name="SubjectAttributes")
+    @XmlElement(name = "SubjectAttributes")
     private List<PdpAttributesDto> subjectAttributes;
 
-    @XmlElement(name="ResourceAttributes")
+    @XmlElement(name = "ResourceAttributes")
     private List<PdpAttributesDto> resourceAttributes;
 
-    @XmlElement(name="ActionAttributes")
+    @XmlElement(name = "ActionAttributes")
     private List<PdpAttributesDto> actionAttributes;
 
-    @XmlElement(name="EnvironmentAttributes")
+    @XmlElement(name = "EnvironmentAttributes")
     private List<PdpAttributesDto> environmentAttributes;
 }

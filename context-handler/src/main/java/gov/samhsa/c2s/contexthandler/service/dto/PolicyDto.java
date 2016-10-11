@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class PolicyDto {
 
-	private String id;
-	private boolean valid;
-	private byte[] policy;
+    private String id;
+    private boolean valid;
+    private byte[] policy;
 }

@@ -9,7 +9,6 @@ import java.util.List;
 @Builder
 public class PolicyContainerDto {
 
-	private List<PolicyDto> policies;
-
+    private List<PolicyDto> policies;
 
 }
