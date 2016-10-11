@@ -3,7 +3,7 @@ server:
 logging:
   file: /java/C2S_LOGS/context-handler/context-handler.log
 info:
-  component: context handler API
+  component: Context Handler API
 eureka:
   instance:
     instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
