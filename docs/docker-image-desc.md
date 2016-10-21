@@ -23,7 +23,7 @@ Be sure to familiarize yourself with the repository's [README.md](https://github
 
 `docker run  --name context-handler -d bhits/context-handler:latest <additional program arguments>`
 
-*NOTE: In order for this API to fully function as a microservice in the Consent2Share application, it is required to setup the dependency microservices and support level infrastructure. Please refer to the [Consent2Share Deployment Guide]() for instructions to setup the Consent2Share infrastructure.*
+*NOTE: In order for this API to fully function as a microservice in the Consent2Share application, it is required to setup the dependency microservices and support level infrastructure. Please refer to the [Consent2Share Deployment Guide](https://github.com/bhits/consent2share/releases/download/2.0.0/c2s-deployment-guide.pdf) for instructions to setup the Consent2Share infrastructure.*
 
 
 ## Configure
@@ -72,7 +72,7 @@ Please see the [Docker installation documentation](https://docs.docker.com/engin
 
 # License
 
-View [license]() information for the software contained in this image.
+View [license](https://github.com/bhits/context-handler) information for the software contained in this image.
 
 # User Feedback
 
