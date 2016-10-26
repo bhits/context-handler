@@ -79,7 +79,7 @@ server.context-path: /contextHandler
 spring:
   profiles: docker
   datasource:
-      url: jdbc:mysql://pcm-db.c2s.com:3306/pcm?autoReconnect=true
+      url: jdbc:mysql://${C2S_DB_HOST:pcm-db.c2s.com}:${C2S_DB_PORT:3306}/pcm?autoReconnect=true
 eureka:
   client:
     service-url:
@@ -89,4 +89,4 @@ eureka:
 c2s:
   context-handler:
     audit-service:
-      host: audit-service.c2s.com
+      host: logback-audit-server.c2s.com
