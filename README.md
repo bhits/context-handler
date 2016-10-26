@@ -9,6 +9,7 @@ The Context Handler API is a RESTful web service component of Consent2Share (C2S
 
 + [Oracle Java JDK 8 with Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 + [Docker Engine](https://docs.docker.com/engine/installation/) (for building a Docker image from the project)
++ [Logback-Audit](http://audit.qos.ch/)
 
 ### Commands
 
@@ -27,7 +28,18 @@ To build the project, navigate to the folder that contains `pom.xml` file using 
 
 ### Prerequisites
 
-This API uses the PCM database as a local policy repository to retrieve XACML policies. Thus, it needs to have a database user configuration with read privileges to the PCM database. Please see [Configure](#configure) section for details of configuring the data source.
+1. This API uses the PCM database as a local policy repository to retrieve XACML policies. Thus, it needs to have a database user configuration with read privileges to the PCM database. Please see [Configure](#configure) section for details of configuring the data source.
+2. This API also needs to call Logback-Audit server, so please following the [Logback-Audit deployment instruction](https://github.com/bhits/logback-audit) to set it up
+3. After Logback-Audit server is up, the hostname (currently is localhost) in the [default configuration](context-handler/src/main/resources/application.yml) need to be replaced with the real server name
+Logback-Audit configuration section in the configuration file
+
+```yml
+...
+    audit-service:
+      host: localhost
+      port: 9630
+...
+```
 
 ### Commands
 

@@ -52,7 +52,7 @@ c2s:
       action:
         actionId: pepaccess
     audit-service:
-      host: BHITSDEVACS01
+      host: localhost
       port: 9630
 ---
 # enables ssl in this service when activated
