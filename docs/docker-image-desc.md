@@ -72,7 +72,7 @@ Please see the [Docker installation documentation](https://docs.docker.com/engin
 
 # License
 
-View [license](https://github.com/bhits/context-handler) information for the software contained in this image.
+View [license](https://github.com/bhits/context-handler/blob/master/LICENSE) information for the software contained in this image.
 
 # User Feedback
 

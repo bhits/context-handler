@@ -35,7 +35,7 @@ This is a [Spring Boot](https://projects.spring.io/spring-boot/) project and ser
 + Run as a JAR file: `java -jar context-handler-x.x.x-SNAPSHOT.jar <additional program arguments>`
 + Run as a Docker Container: `docker run -d bhits/context-handler:latest <additional program arguments>`
 
-*NOTE: In order for this API to fully function as a microservice in the C2S application, it is required to setup the dependency microservices and support level infrastructure. Please refer to the C2S Deployment Guide for instructions to setup the C2S infrastructure.*
+*NOTE: In order for this API to fully function as a microservice in the C2S application, it is required to setup the dependency microservices and support level infrastructure. Please refer to the [C2S Deployment Guide](https://github.com/bhits/consent2share/releases/download/2.0.0/c2s-deployment-guide.pdf) for instructions to setup the C2S infrastructure.*
 
 ## Configure
 
@@ -102,6 +102,9 @@ Java has a default CA Certificates Store that allows it to trust well-known cert
 [//]: # (## Notes)
 
 [//]: # (## Contribute)
+
+## License
+View [license](https://github.com/bhits/context-handler/blob/master/LICENSE) information for the software contained in this repository.
 
 ## Contact
 
