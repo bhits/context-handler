@@ -26,7 +26,7 @@
 package gov.samhsa.c2s.contexthandler.service;
 
 import ch.qos.logback.audit.AuditException;
-import gov.samhsa.c2s.common.audit.AuditService;
+import gov.samhsa.c2s.common.audit.AuditClient;
 import gov.samhsa.c2s.common.audit.PredicateKey;
 import gov.samhsa.c2s.common.document.accessor.DocumentAccessor;
 import gov.samhsa.c2s.common.document.accessor.DocumentAccessorException;
@@ -88,7 +88,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     private RequestGenerator requestGenerator;
 
     @Autowired
-    private AuditService auditService;
+    private AuditClient  auditClient ;
 
     /**
      * The document accessor.
@@ -219,7 +219,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
             AuditException {
         final StringWriter writer = new StringWriter();
         PolicyMarshaller.marshal(policy, writer);
-        final Map<PredicateKey, String> predicateMap = auditService
+        final Map<PredicateKey, String> predicateMap = auditClient
                 .createPredicateMap();
         final String policyString = writer.toString();
         writer.close();
@@ -236,7 +236,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
         if (policyIdSet != null) {
             predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY_ID, policyIdSet.toString());
         }
-        auditService.audit(this, xacmlRequest.getMessageId(), ContextHandlerAuditVerb.DEPLOY_POLICY,
+        auditClient.audit(this, xacmlRequest.getMessageId(), ContextHandlerAuditVerb.DEPLOY_POLICY,
                 xacmlRequest.getPatientId().getExtension(), predicateMap);
     }
 
