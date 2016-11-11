@@ -38,6 +38,7 @@ import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerAuditVerb;
 import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerPredicateKey;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
+import gov.samhsa.c2s.contexthandler.service.exception.AuditClientException;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
@@ -243,7 +244,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
             auditClient.get().audit(this, xacmlRequest.getMessageId(), ContextHandlerAuditVerb.DEPLOY_POLICY,
                     xacmlRequest.getPatientId().getExtension(), predicateMap);
         }else {
-
+            throw new AuditClientException("Audit Client bean not create.");
         }
     }
 
