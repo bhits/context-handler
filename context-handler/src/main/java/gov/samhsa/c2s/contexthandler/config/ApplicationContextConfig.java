@@ -1,8 +1,9 @@
 package gov.samhsa.c2s.contexthandler.config;
 
+
 import ch.qos.logback.audit.AuditException;
-import gov.samhsa.c2s.common.audit.AuditService;
-import gov.samhsa.c2s.common.audit.AuditServiceImpl;
+import gov.samhsa.c2s.common.audit.AuditClient;
+import gov.samhsa.c2s.common.audit.AuditClientImpl;
 import gov.samhsa.c2s.common.document.accessor.DocumentAccessor;
 import gov.samhsa.c2s.common.document.accessor.DocumentAccessorImpl;
 import gov.samhsa.c2s.common.document.converter.DocumentXmlConverter;
@@ -21,10 +22,10 @@ import org.springframework.jdbc.support.lob.LobHandler;
 public class ApplicationContextConfig {
 
     @Bean
-    public AuditService auditService(
+    public AuditClient auditClient(
             @Value("${c2s.context-handler.audit-service.host}") String host,
             @Value("${c2s.context-handler.audit-service.port}") int port) throws AuditException {
-        return new AuditServiceImpl("ContextHandlerAuditService", host, port);
+        return new AuditClientImpl("ContextHandlerAuditClient", host, port);
     }
 
     @Bean
