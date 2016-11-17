@@ -13,6 +13,7 @@ import gov.samhsa.c2s.common.document.transformer.XmlTransformerImpl;
 import gov.samhsa.c2s.common.marshaller.SimpleMarshaller;
 import gov.samhsa.c2s.common.marshaller.SimpleMarshallerImpl;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
@@ -22,10 +23,9 @@ import org.springframework.jdbc.support.lob.LobHandler;
 public class ApplicationContextConfig {
 
     @Bean
-    public AuditClient auditClient(
-            @Value("${c2s.context-handler.audit-service.host}") String host,
-            @Value("${c2s.context-handler.audit-service.port}") int port) throws AuditException {
-        return new AuditClientImpl("ContextHandlerAuditClient", host, port);
+    @ConditionalOnBean(AuditClientProperties.class)
+    public AuditClient auditClient(AuditClientProperties auditClientProperties) throws AuditException {
+        return new AuditClientImpl("ContextHandlerAuditClient", auditClientProperties.getHost(), auditClientProperties.getPort());
     }
 
     @Bean

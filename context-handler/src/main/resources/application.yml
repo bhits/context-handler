@@ -51,7 +51,8 @@ c2s:
         status: urn:oasis:names:tc:ebxml-regrep:StatusType:Approved
       action:
         actionId: pepaccess
-    audit-service:
+    audit-client:
+      enabled: false
       host: localhost
       port: 9630
 ---

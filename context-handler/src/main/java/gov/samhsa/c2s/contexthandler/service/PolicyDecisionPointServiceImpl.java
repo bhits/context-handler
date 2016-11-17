@@ -38,6 +38,7 @@ import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerAuditVerb;
 import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerPredicateKey;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
+import gov.samhsa.c2s.contexthandler.service.exception.AuditClientException;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
@@ -88,7 +89,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     private RequestGenerator requestGenerator;
 
     @Autowired
-    private AuditClient  auditClient ;
+    private Optional<AuditClient>  auditClient ;
 
     /**
      * The document accessor.
@@ -219,25 +220,32 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
             AuditException {
         final StringWriter writer = new StringWriter();
         PolicyMarshaller.marshal(policy, writer);
-        final Map<PredicateKey, String> predicateMap = auditClient
-                .createPredicateMap();
-        final String policyString = writer.toString();
-        writer.close();
-        final NodeList policyIdNodeList = documentAccessor.getNodeList(
-                documentXmlConverter.loadDocument(policyString), "//@PolicyId");
-        Set<String> policyIdSet = null;
-        if (policyIdNodeList.getLength() > 0) {
-            policyIdSet = new HashSet<>();
-            for (int i = 0; i < policyIdNodeList.getLength(); i++) {
-                policyIdSet.add(policyIdNodeList.item(i).getNodeValue());
+
+        Map<PredicateKey, String> predicateMap = null;
+
+        if(auditClient.isPresent()){
+            predicateMap = auditClient.get()
+                    .createPredicateMap();
+            final String policyString = writer.toString();
+            writer.close();
+            final NodeList policyIdNodeList = documentAccessor.getNodeList(
+                    documentXmlConverter.loadDocument(policyString), "//@PolicyId");
+            Set<String> policyIdSet = null;
+            if (policyIdNodeList.getLength() > 0) {
+                policyIdSet = new HashSet<>();
+                for (int i = 0; i < policyIdNodeList.getLength(); i++) {
+                    policyIdSet.add(policyIdNodeList.item(i).getNodeValue());
+                }
             }
+            predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY, policyString);
+            if (policyIdSet != null) {
+                predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY_ID, policyIdSet.toString());
+            }
+            auditClient.get().audit(this, xacmlRequest.getMessageId(), ContextHandlerAuditVerb.DEPLOY_POLICY,
+                    xacmlRequest.getPatientId().getExtension(), predicateMap);
+        }else {
+            throw new AuditClientException("Audit Client bean not create.");
         }
-        predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY, policyString);
-        if (policyIdSet != null) {
-            predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY_ID, policyIdSet.toString());
-        }
-        auditClient.audit(this, xacmlRequest.getMessageId(), ContextHandlerAuditVerb.DEPLOY_POLICY,
-                xacmlRequest.getPatientId().getExtension(), predicateMap);
     }
 
     private String createPDPRequestLogMessage(RequestType request) {
