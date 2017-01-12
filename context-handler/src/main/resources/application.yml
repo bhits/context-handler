@@ -4,18 +4,6 @@ logging:
   file: /java/C2S_LOGS/context-handler/context-handler.log
 info:
   component: Context Handler API
-eureka:
-  instance:
-    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
-    secure-port-enabled: false
-    non-secure-port-enabled: true
-  client:
-    healthcheck:
-      enabled: true
-    service-url:
-      # endpoint for discovery-server, pass '--eureka.client.protocol=https' if discovery-server is running on https
-      defaultZone: ${eureka.client.protocol:http}://localhost:8761/eureka/
-
 hystrix.command.default.execution.timeout.enabled: false
 ribbon:
   ReadTimeout: 50000
@@ -25,14 +13,6 @@ spring:
     url: jdbc:mysql://localhost:3306/pcm?autoReconnect=true
     username: root
     password: admin
-    driver-class-name: com.mysql.jdbc.Driver
-    validation-query: select 1
-    test-on-borrow: true
-    test-on-return: true
-    test-while-idle: true
-    time-between-eviction-runs-millis: 1800000
-    num-tests-per-eviction-run: 3
-    min-evictable-idle-time-millis: 1800000
 c2s:
   context-handler:
     pid.type: ISO
@@ -63,11 +43,6 @@ server:
   ssl:
     key-store: /ssl_keystore.keystore
     key-store-password: changeit
-eureka:
-  instance:
-    secure-port: ${server.port}
-    secure-port-enabled: true
-    non-secure-port-enabled: false
 ---
 # enables ssl and adds /contextHandler context path when activated
 spring.profiles: standalone-ssl
@@ -81,12 +56,6 @@ spring:
   profiles: docker
   datasource:
       url: jdbc:mysql://${C2S_DB_HOST:pcm-db.c2s.com}:${C2S_DB_PORT:3306}/pcm?autoReconnect=true
-eureka:
-  client:
-    service-url:
-      defaultZone: ${eureka.client.protocol:http}://discovery-server.c2s.com:8761/eureka/
-  instance:
-    prefer-ip-address: true
 c2s:
   context-handler:
     audit-service:
