@@ -29,6 +29,7 @@ import gov.samhsa.c2s.common.document.transformer.XmlTransformer;
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.common.marshaller.SimpleMarshaller;
+import gov.samhsa.c2s.contexthandler.config.ContextHandlerProperties;
 import gov.samhsa.c2s.contexthandler.service.dto.PdpAttributesDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PdpRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
@@ -36,7 +37,6 @@ import org.herasaf.xacml.core.SyntaxException;
 import org.herasaf.xacml.core.context.RequestMarshaller;
 import org.herasaf.xacml.core.context.impl.RequestType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -60,12 +60,10 @@ public class RequestGenerator {
     private XmlTransformer xmlTransformer;
     @Autowired
     private SimpleMarshaller simpleMarshaller;
-    @Value("${c2s.context-handler.pdpRequest.resource.typeCode}")
-    private String resourceTypeCode;
-    @Value("${c2s.context-handler.pdpRequest.resource.status}")
-    private String resourceStatus;
-    @Value("${c2s.context-handler.pdpRequest.action.actionId}")
-    private String actionId;
+
+    @Autowired
+    private ContextHandlerProperties contextHandlerProperties;
+
     Function<XacmlRequestDto, PdpRequestDto> XacmlRequestDtoToPdpRequestDto = new Function<XacmlRequestDto, PdpRequestDto>() {
         @Override
         public PdpRequestDto apply(XacmlRequestDto xacmlRequestDto) {
@@ -88,10 +86,10 @@ public class RequestGenerator {
             //setting Resource attributes
             List<PdpAttributesDto> resourceAttributes = new ArrayList<>();
             resourceAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.RESOURCE_TYPECODE.getAttributeId())
-                    .attributeValue(resourceTypeCode)
+                    .attributeValue(contextHandlerProperties.getPdpRequest().getResource().getTypeCode())
                     .attributeType(PdpAttributeIds.RESOURCE_TYPECODE.getAttributeType()).build());
             resourceAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.RESOURCE_STATUS.getAttributeId())
-                    .attributeValue(resourceStatus)
+                    .attributeValue(contextHandlerProperties.getPdpRequest().getResource().getStatus())
                     .attributeType(PdpAttributeIds.RESOURCE_STATUS.getAttributeType()).build());
 
             pdpRequestDto.setResourceAttributes(resourceAttributes);
@@ -100,7 +98,7 @@ public class RequestGenerator {
             //setting Action attributes
             List<PdpAttributesDto> actionAttributes = new ArrayList<>();
             actionAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.ACTION_ACTIONID.getAttributeId())
-                    .attributeValue(actionId)
+                    .attributeValue(contextHandlerProperties.getPdpRequest().getAction().getActionId())
                     .attributeType(PdpAttributeIds.ACTION_ACTIONID.getAttributeType()).build());
             pdpRequestDto.setActionAttributes(actionAttributes);
 
