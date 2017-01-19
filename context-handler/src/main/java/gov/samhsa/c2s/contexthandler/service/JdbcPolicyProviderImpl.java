@@ -28,6 +28,7 @@ package gov.samhsa.c2s.contexthandler.service;
 
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
+import gov.samhsa.c2s.contexthandler.config.ContextHandlerProperties;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
@@ -37,7 +38,6 @@ import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyDtoRowMapper;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -77,11 +77,10 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
     private static final String DELIMITER_COLON = ":";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    /**
-     * The pid domain type.
-     */
-    @Value("${c2s.context-handler.pid.type}")
-    private String pidDomainType;
+
+    @Autowired
+    private ContextHandlerProperties contextHandlerProperties;
+
     @Autowired
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
@@ -134,7 +133,7 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
         policyIdBuilder.append(DELIMITER_AMPERSAND);
         policyIdBuilder.append(pidDomain);
         policyIdBuilder.append(DELIMITER_AMPERSAND);
-        policyIdBuilder.append(pidDomainType);
+        policyIdBuilder.append(contextHandlerProperties.getPid().getType());
         policyIdBuilder.append(DELIMITER_COLON);
         policyIdBuilder.append(recipientSubjectNPI);
         policyIdBuilder.append(DELIMITER_COLON);

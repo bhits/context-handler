@@ -13,7 +13,6 @@ import org.herasaf.xacml.core.SyntaxException;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.herasaf.xacml.core.policy.PolicyMarshaller;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -48,11 +47,6 @@ public class XacmlPolicySetServiceImpl implements XacmlPolicySetService {
 
     @Autowired
     PolicyCombiningAlgIdValidator policyCombiningAlgIdValidator;
-    /**
-     * The pid domain type.
-     */
-    @Value("${c2s.context-handler.pid.type}")
-    private String pidDomainType;
 
     @Override
     public Evaluatable getPoliciesCombinedAsPolicySet(PolicyContainerDto policies, String policySetId, String policyCombiningAlgId) throws NoPolicyFoundException, PolicyProviderException {
