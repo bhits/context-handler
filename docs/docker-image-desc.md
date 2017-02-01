@@ -44,7 +44,7 @@ The following is an example to override the default database password:
 
 ## Environment Variables
 
-When you start the Context Handler  image, you can edit the configuration of the Context Handler  instance by passing one or more environment variables on the command line. 
+When you start the Context Handler image, you can edit the configuration of the Context Handler instance by passing one or more environment variables on the command line. 
 
 ### JAR_FILE
 
@@ -60,9 +60,9 @@ This environment variable is used to setup JVM argument, such as memory configur
 
 ### DEFAULT_PROGRAM_ARGS 
 
-This environment variable is used to setup application argument. The default value of is "--spring.profiles.active=docker".
+This environment variable is used to setup an application argument. The default value is "--spring.profiles.active=application-default, docker".
 
-`docker run --name context-handler -e DEFAULT_PROGRAM_ARGS="--spring.profiles.active=ssl,docker" -d bhits/context-handler:latest`
+`docker run --name context-handler -e DEFAULT_PROGRAM_ARGS="--spring.profiles.active=application-default,ssl,docker" -d bhits/context-handler:latest`
 
 # Supported Docker versions
 
