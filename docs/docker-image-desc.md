@@ -3,7 +3,7 @@ This API sends XACML response having authorization decisions with applied policy
 
 # Full Description
 
-# Supported Tags and Respective `Dockerfile` Links
+# Supported Source Code Tags and Current `Dockerfile` Link
 
 [`1.11.0(latest)`](https://github.com/bhits/context-handler/releases/tag/1.11.0), [`1.8.0`](https://github.com/bhits/context-handler/releases/tag/1.8.0)
 
