@@ -24,6 +24,9 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
     @Autowired
     private PolicyDecisionPointService policyDesicionPointService;
 
+    @Autowired
+    private PolicyProvider policyProvider;
+
     @Override
     public XacmlResponseDto enforcePolicy(XacmlRequestDto xacmlRequest) throws C2SAuditException {
         try {
@@ -41,5 +44,11 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
             xacmlResponse.setPdpDecision(e.getClass().getName());
             return xacmlResponse;
         }
+    }
+
+    @Override
+    public void testFhirConversion() {
+        logger.info("testFhirConversion service invoked.");
+        policyProvider.getPolicies(new XacmlRequestDto());
     }
 }

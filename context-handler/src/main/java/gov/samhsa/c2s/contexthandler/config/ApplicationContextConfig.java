@@ -4,6 +4,11 @@ package gov.samhsa.c2s.contexthandler.config;
 import ch.qos.logback.audit.AuditException;
 import gov.samhsa.c2s.common.audit.AuditClient;
 import gov.samhsa.c2s.common.audit.AuditClientImpl;
+import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
+import gov.samhsa.c2s.common.consentgen.ConsentBuilderImpl;
+import gov.samhsa.c2s.common.consentgen.ConsentDtoFactory;
+import gov.samhsa.c2s.common.consentgen.XacmlXslUrlProvider;
+import gov.samhsa.c2s.common.consentgen.pg.XacmlXslUrlProviderImpl;
 import gov.samhsa.c2s.common.document.accessor.DocumentAccessor;
 import gov.samhsa.c2s.common.document.accessor.DocumentAccessorImpl;
 import gov.samhsa.c2s.common.document.converter.DocumentXmlConverter;
@@ -12,7 +17,7 @@ import gov.samhsa.c2s.common.document.transformer.XmlTransformer;
 import gov.samhsa.c2s.common.document.transformer.XmlTransformerImpl;
 import gov.samhsa.c2s.common.marshaller.SimpleMarshaller;
 import gov.samhsa.c2s.common.marshaller.SimpleMarshallerImpl;
-import org.springframework.beans.factory.annotation.Value;
+import gov.samhsa.c2s.contexthandler.service.ConsentDtoFactoryImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,10 +43,24 @@ public class ApplicationContextConfig {
         return new DocumentAccessorImpl();
     }
 
+    @Bean
+    public ConsentDtoFactory consentDtoFactory() {
+        return new ConsentDtoFactoryImpl();
+    }
+
+    @Bean
+    public ConsentBuilder consentBuilder() {
+        return new ConsentBuilderImpl("", xacmlXslUrlProvider(), consentDtoFactory(), xmlTransformer());
+    }
 
     @Bean
     public SimpleMarshaller simpleMarshaller() {
         return new SimpleMarshallerImpl();
+    }
+
+    @Bean
+    public XacmlXslUrlProvider xacmlXslUrlProvider() {
+        return new XacmlXslUrlProviderImpl();
     }
 
     @Bean

@@ -52,7 +52,7 @@ import static gov.samhsa.c2s.contexthandler.service.util.AssertionUtils.assertPo
 /**
  * The Class PolRepPolicyProvider.
  */
-@Service
+//@Service
 public class JdbcPolicyProviderImpl implements PolicyProvider {
     /**
      * The Constant SQL_GET_SIGNED_CONSENT.
@@ -120,6 +120,9 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
         final Evaluatable policySet = xacmlPolicySetService.getPoliciesCombinedAsPolicySet(policies, UUID
                         .randomUUID().toString(),
                 PolicyCombiningAlgIds.DENY_OVERRIDES.getUrn());
+
+        // FIXME: REMOVE THIS LINE!!!
+        logger.error("JdbcPolicyProviderImpl executed!");
 
         return Arrays.asList(policySet);
 
