@@ -30,6 +30,7 @@ import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import org.herasaf.xacml.core.policy.Evaluatable;
+import org.hl7.fhir.dstu3.model.Bundle;
 
 import java.util.List;
 
@@ -47,4 +48,6 @@ public interface PolicyProvider {
      * @throws PolicyProviderException the policy provider exception
      */
     List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException, PolicyProviderException;
+
+    Bundle tempGetFhirConsent(String mrn);
 }

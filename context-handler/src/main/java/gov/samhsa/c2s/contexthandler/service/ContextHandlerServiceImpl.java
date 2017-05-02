@@ -6,6 +6,7 @@ import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,5 +51,11 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
     public void testFhirConversion() {
         logger.info("testFhirConversion service invoked.");
         policyProvider.getPolicies(new XacmlRequestDto());
+    }
+
+    @Override
+    public Bundle tempGetFhirConsent(String mrn) {
+        logger.info("tempGetFhirConsent service invoked. MRN = " + mrn);
+        return policyProvider.tempGetFhirConsent(mrn);
     }
 }

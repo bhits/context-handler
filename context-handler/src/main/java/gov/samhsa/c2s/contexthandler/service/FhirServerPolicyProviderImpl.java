@@ -14,6 +14,7 @@ import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.herasaf.xacml.core.policy.Evaluatable;
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Consent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,4 +71,12 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
         return fhirConsent;
     }
+
+    //temp method
+    @Override
+    public Bundle tempGetFhirConsent(String mrn){
+
+        return null;
+    }
+
 }
