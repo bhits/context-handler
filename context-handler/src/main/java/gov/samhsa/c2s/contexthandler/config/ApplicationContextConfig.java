@@ -1,6 +1,7 @@
 package gov.samhsa.c2s.contexthandler.config;
 
 
+import ca.uhn.fhir.context.FhirContext;
 import ch.qos.logback.audit.AuditException;
 import gov.samhsa.c2s.common.audit.AuditClient;
 import gov.samhsa.c2s.common.audit.AuditClientImpl;
@@ -73,5 +74,13 @@ public class ApplicationContextConfig {
         DefaultLobHandler defaultLobHandler = new DefaultLobHandler();
         defaultLobHandler.setStreamAsLob(true);
         return defaultLobHandler;
+    }
+
+    @Bean
+    public FhirContext fhirContext() {
+        FhirContext fhirContext = FhirContext.forDstu3();
+        // FIXME: Change magic number below to be a configurable property
+        fhirContext.getRestfulClientFactory().setSocketTimeout(768000);
+        return fhirContext;
     }
 }
