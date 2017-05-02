@@ -37,6 +37,7 @@ import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyDtoRowMapper;
 import org.herasaf.xacml.core.policy.Evaluatable;
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -171,5 +172,11 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
         return policies;
     }
 
+    //temp method
+    @Override
+    public Bundle tempGetFhirConsent(String mrn){
+
+        return null;
+    }
 
 }
