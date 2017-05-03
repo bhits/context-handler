@@ -89,7 +89,7 @@
   },
   "consentor": [
     {
-      "reference": "#4",
+      "reference": "Patient/9",
       "display": "Alice Recruit"
     }
   ],

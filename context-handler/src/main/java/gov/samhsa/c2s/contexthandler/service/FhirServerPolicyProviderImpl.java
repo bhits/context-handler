@@ -1,5 +1,6 @@
 package gov.samhsa.c2s.contexthandler.service;
 
+import ca.uhn.fhir.context.FhirContext;
 import gov.samhsa.c2s.common.consentgen.ConsentDto;
 import gov.samhsa.c2s.common.consentgen.ConsentGenException;
 import gov.samhsa.c2s.common.consentgen.IndividualProviderDto;
@@ -19,21 +20,25 @@ import org.hl7.fhir.dstu3.model.Consent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
 @Service
 public class FhirServerPolicyProviderImpl implements PolicyProvider {
-    private static final String MOCK_FHIR_CONSENT_FILENAME = "C:\\IntelliJ-workspaces\\c2sv3-ws\\context-handler\\context-handler\\src\\main\\resources\\mockFhirConsent.json";
+    private static final String MOCK_FHIR_CONSENT_FILENAME = "mockFhirConsent.json";
 
     private final ConsentBuilder consentBuilder;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final FhirContext fhirContext;
+
     @Autowired
-    public FhirServerPolicyProviderImpl(ConsentBuilder consentBuilder) {
+    public FhirServerPolicyProviderImpl(ConsentBuilder consentBuilder, FhirContext fhirContext) {
         this.consentBuilder = consentBuilder;
+        this.fhirContext = fhirContext;
     }
 
     @Override
@@ -45,6 +50,19 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         try {
             consentDto = consentBuilder.buildFhirConsent2ConsentDto(fhirConsent);
             logger.info("Conversion of FHIR Consent to ConsentDto complete.");
+
+            if(consentDto.getProvidersPermittedToDisclose().size() > 0) {
+                logger.info("INDIVIDUAL FROM PROVIDER(S):");
+                consentDto.getProvidersPermittedToDisclose()
+                        .forEach(individualProviderDto -> logger.info(individualProviderDto.getNpi()));
+            }
+
+            if(consentDto.getOrganizationalProvidersPermittedToDisclose().size() > 0) {
+                logger.info("ORGANIZATIONAL FROM PROVIDER(S):");
+                consentDto.getOrganizationalProvidersPermittedToDisclose()
+                        .forEach(organizationalProviderDto -> logger.info(organizationalProviderDto.getNpi()));
+            }
+
         }catch (ConsentGenException e){
             logger.error("ConsentGenException occurred while trying to convert FHIR Consent object to ConsentDto object", e);
             throw new PolicyProviderException("Unable to process FHIR consent", e);
@@ -57,15 +75,24 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
 
     private Consent getMockFhirConsentObject(){
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader classLoader = getClass().getClassLoader();
         ObjectMapper objectMapper = new ObjectMapper();
+        File file;
         Consent fhirConsent;
 
-        try(FileReader fileReader = new FileReader(MOCK_FHIR_CONSENT_FILENAME)){
-            fhirConsent = objectMapper.readValue(fileReader, Consent.class);
+        try{
+            //noinspection ConstantConditions
+            file = new File(classLoader.getResource(MOCK_FHIR_CONSENT_FILENAME).getFile());
+        }catch(NullPointerException e){
+            logger.error("Error getting mock file", e);
+            throw new MockFileReadException(e);
+        }
+
+        try(FileReader fileReader = new FileReader(file)){
+            fhirConsent = fhirContext.newJsonParser().parseResource(Consent.class, fileReader);
             logger.info("Mock FHIR consent successfully read from file and mapped to FHIR Consent object.");
         }catch(IOException e){
-            logger.error(e.getMessage());
+            logger.error("Error reading mock file from input stream", e);
             throw new MockFileReadException(e);
         }
 
