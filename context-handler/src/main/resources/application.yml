@@ -39,7 +39,7 @@ c2s:
     fhir:
       enabled: true
       # configure fhir server base url
-      serverUrl: http://bhitsdevhie01/hapi-fhir-jpaserver/baseStu3
+      serverUrl: http://bhitsqahie01/hapi-fhir-jpaserver/baseStu3
       clientSocketTimeoutInMs: 768000
 ---
 # enables ssl and adds /contextHandler context path when activated
