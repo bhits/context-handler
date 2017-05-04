@@ -2,6 +2,7 @@ package gov.samhsa.c2s.contexthandler.service;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.IGenericClient;
+import ca.uhn.fhir.rest.gclient.DateClientParam;
 import ca.uhn.fhir.rest.gclient.ReferenceClientParam;
 import ca.uhn.fhir.rest.gclient.TokenClientParam;
 import ca.uhn.fhir.validation.FhirValidator;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -176,7 +178,8 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     @Override
     public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn){
         String system = "https://bhits.github.io/consent2share/";
-        Bundle patientSearchResponse;
+        //String system = "http://www.example.com/random-mrns";
+                Bundle patientSearchResponse;
         Bundle consentSearchResponse;
 
         patientSearchResponse = fhirClient.search()
@@ -198,11 +201,15 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         Patient patientObj = (Patient) patientSearchResponse.getEntry().get(0).getResource();
 
         String patientResourceId = patientObj.getIdElement().getIdPart();
+        String dateToday = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         consentSearchResponse = fhirClient.search()
                 .forResource(Consent.class)
                 .where(new ReferenceClientParam("patient")
                         .hasId(patientResourceId))
+                .where(new TokenClientParam("status").exactly().code("active"))
+                .where(new DateClientParam("period").afterOrEquals().second(dateToday))
+                .where(new DateClientParam("period").beforeOrEquals().second(dateToday))
                 .returnBundle(Bundle.class)
                 .execute();
 
