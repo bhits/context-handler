@@ -52,7 +52,18 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
     @Override
     public void testFhirConversion() {
         logger.info("testFhirConversion service invoked.");
-        policyProvider.getPolicies(new XacmlRequestDto());
+
+        String mrn = "C2S-DEV-3EKFHA";
+        String mrnSystem = "https://bhits.github.io/consent2share/";
+
+        XacmlRequestDto xacmlRequestDto = new XacmlRequestDto();
+        xacmlRequestDto.setPatientId(new PatientIdDto(mrnSystem, mrn));
+        xacmlRequestDto.setPurposeOfUse(SubjectPurposeOfUse.HEALTHCARE_TREATMENT);
+        xacmlRequestDto.setMessageId("testmessageid");
+        xacmlRequestDto.setRecipientNpi("1003220674");
+        xacmlRequestDto.setIntermediaryNpi("1013900992");
+
+        policyProvider.getPolicies(xacmlRequestDto);
     }
 
     @Override

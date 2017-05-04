@@ -8,6 +8,7 @@ import ca.uhn.fhir.validation.FhirValidator;
 import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
 import gov.samhsa.c2s.common.consentgen.ConsentDto;
 import gov.samhsa.c2s.common.consentgen.ConsentGenException;
+import gov.samhsa.c2s.common.consentgen.PatientDto;
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.contexthandler.service.dto.ConsentBundleAndPatientDto;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -108,6 +110,38 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         logger.info("CONSENT SHARE FOR PURPOSE OF USE CODES: " + consentDto.getShareForPurposeOfUseCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
         logger.info("CONSENT PATIENT NAME: " + consentDto.getPatientDto().getFirstName() + " " + consentDto.getPatientDto().getLastName());
         logger.info("CONSENT PATIENT MRN: " + consentDto.getPatientDto().getMedicalRecordNumber());
+
+        consentDto.setLegalRepresentative(new PatientDto());
+        consentDto.setVersion(0);
+
+        PatientDto patientDto = consentDto.getPatientDto();
+        patientDto.setPatientIdNumber("");
+        patientDto.setAddressCity("");
+        patientDto.setAddressCountryCode("");
+        patientDto.setAddressPostalCode("");
+        patientDto.setAddressStateCode("");
+        patientDto.setAddressStreetAddressLine("");
+        patientDto.setAdministrativeGenderCode("");
+        patientDto.setBirthDate(new Date());
+        patientDto.setEmail("");
+        patientDto.setEnterpriseIdentifier("");
+        patientDto.setPrefix("");
+        patientDto.setSocialSecurityNumber("");
+        patientDto.setTelephoneTypeTelephone("");
+
+        consentDto.setPatientDto(patientDto);
+
+        String consentXacmlString;
+
+        try{
+            consentXacmlString = consentBuilder.buildConsent2Xacml(consentDto);
+        }catch (ConsentGenException e){
+            logger.error("ConsentGenException occurred while trying to convert ConsentDto object to XACML", e);
+            throw new PolicyProviderException("Unable to process FHIR consent", e);
+        }
+
+        logger.info("XACML:");
+        logger.info(consentXacmlString);
 
         return null;
     }
