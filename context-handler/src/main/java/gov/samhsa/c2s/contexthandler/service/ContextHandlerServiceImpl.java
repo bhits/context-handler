@@ -67,8 +67,8 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
     }
 
     @Override
-    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn) {
-        logger.info("tempGetFhirConsent service invoked. MRN = " + mrn);
-        return policyProvider.tempGetFhirConsent(mrn);
+    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn, String system) {
+        logger.info("tempGetFhirConsent service invoked. MRN = " + mrn + " System = " + system);
+        return policyProvider.tempGetFhirConsent(mrn, system);
     }
 }

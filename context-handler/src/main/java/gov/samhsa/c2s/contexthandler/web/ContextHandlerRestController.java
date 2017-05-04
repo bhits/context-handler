@@ -37,8 +37,9 @@ public class ContextHandlerRestController {
 
     //FIXME: !!!REMOVE THE FOLLOWING BEFORE MERGING TO MASTER!!!
     //Given a MRN, get bundle from FHIR server
-    @RequestMapping(value = "/tempGetFhirConsent/{mrn}", method = RequestMethod.GET)
-    public void tempGetFhirConsent(@PathVariable String mrn) throws C2SAuditException {
-        contextHandlerService.tempGetFhirConsent(mrn);
+    @RequestMapping(value = "/tempGetFhirConsent/{mrn}/{system}", method = RequestMethod.GET)
+    public void tempGetFhirConsent(@PathVariable String mrn,
+                                   @PathVariable String system) throws C2SAuditException {
+        contextHandlerService.tempGetFhirConsent(mrn, system);
     }
 }

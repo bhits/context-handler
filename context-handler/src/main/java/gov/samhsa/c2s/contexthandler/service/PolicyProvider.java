@@ -24,5 +24,6 @@ public interface PolicyProvider {
      */
     List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException, PolicyProviderException;
 
-    ConsentBundleAndPatientDto tempGetFhirConsent(String mrn);
+    //temp method
+    ConsentBundleAndPatientDto tempGetFhirConsent(String mrn, String system);
 }

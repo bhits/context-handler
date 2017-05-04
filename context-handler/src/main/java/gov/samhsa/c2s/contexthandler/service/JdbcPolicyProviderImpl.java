@@ -135,7 +135,7 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
 
     //temp method
     @Override
-    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn){
+    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn, String system){
 
         return null;
     }

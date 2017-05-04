@@ -11,5 +11,5 @@ public interface ContextHandlerService {
 
     void testFhirConversion();
 
-    ConsentBundleAndPatientDto tempGetFhirConsent(String mrn);
+    ConsentBundleAndPatientDto tempGetFhirConsent(String mrn, String system);
 }

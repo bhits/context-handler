@@ -63,7 +63,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException, PolicyProviderException {
         ConsentDto consentDto;
 
-        ConsentBundleAndPatientDto consentBundleAndPatientDto = tempGetFhirConsent(xacmlRequest.getPatientId().getExtension());
+        ConsentBundleAndPatientDto consentBundleAndPatientDto = tempGetFhirConsent(xacmlRequest.getPatientId().getExtension(), xacmlRequest.getPatientId().getRoot());
 
         Patient fhirPatient = consentBundleAndPatientDto.getPatient();
 
@@ -174,9 +174,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
     //temp method
     @Override
-    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn){
-        String mrnSystem = fhirProperties.getMrn().getSystem();
-
+    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn, String mrnSystem){
         Bundle patientSearchResponse = fhirClient.search()
                 .forResource(Patient.class)
                 .where(new TokenClientParam("identifier")
