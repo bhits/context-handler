@@ -26,6 +26,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -36,6 +37,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@ConditionalOnBean(FhirProperties.class)
 public class FhirServerPolicyProviderImpl implements PolicyProvider {
     private static final String MOCK_FHIR_CONSENT_FILENAME = "mockFhirConsent.json";
 

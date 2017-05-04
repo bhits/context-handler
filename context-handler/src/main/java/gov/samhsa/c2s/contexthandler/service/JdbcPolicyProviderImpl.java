@@ -29,6 +29,7 @@ package gov.samhsa.c2s.contexthandler.service;
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.contexthandler.config.ContextHandlerProperties;
+import gov.samhsa.c2s.contexthandler.config.FhirProperties;
 import gov.samhsa.c2s.contexthandler.service.dto.ConsentBundleAndPatientDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
@@ -40,6 +41,7 @@ import gov.samhsa.c2s.contexthandler.service.util.PolicyDtoRowMapper;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -51,31 +53,20 @@ import java.util.UUID;
 import static gov.samhsa.c2s.contexthandler.service.util.AssertionUtils.assertPoliciesNotEmpty;
 import static gov.samhsa.c2s.contexthandler.service.util.AssertionUtils.assertPolicyId;
 
-/**
- * The Class PolRepPolicyProvider.
- */
-//@Service
+@Service
+@ConditionalOnMissingBean(FhirProperties.class)
 public class JdbcPolicyProviderImpl implements PolicyProvider {
-    /**
-     * The Constant SQL_GET_SIGNED_CONSENT.
-     * consent_reference_id, xacml_ccd,consent
-     */
+
     public static final String SQL_GET_XACML_CONSENT_WC = "select consent.consent_reference_id, consent.xacml_ccd  "
             + " from consent "
             + " where consent.consent_reference_id like ?"
             + " and consent.status = 'CONSENT_SIGNED'"
             + " and now() between consent.start_date and consent.end_date";
-    /**
-     * The Constant PERCENTILE.
-     */
+
     private static final String PERCENTILE = "%";
-    /**
-     * The Constant DELIMITER_AMPERSAND.
-     */
+
     private static final String DELIMITER_AMPERSAND = "&";
-    /**
-     * The Constant DELIMITER_COLON.
-     */
+
     private static final String DELIMITER_COLON = ":";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -85,20 +76,14 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
 
     @Autowired
     private DataSource dataSource;
+
     private JdbcTemplate jdbcTemplate;
-    /**
-     * The signed consent dto row mapper.
-     */
+
     @Autowired
     private PolicyDtoRowMapper policyDtoRowMapper;
     @Autowired
     private XacmlPolicySetService xacmlPolicySetService;
 
-    /**
-     * Gets the jdbc template.
-     *
-     * @return the jdbc template
-     */
     JdbcTemplate getJdbcTemplate() {
         return new JdbcTemplate(dataSource);
 
