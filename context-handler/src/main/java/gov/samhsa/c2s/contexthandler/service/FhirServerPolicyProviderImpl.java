@@ -141,7 +141,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     //temp method
     @Override
     public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn){
-        String system = "http://www.example.com/random-mrns";
+        String system = "https://bhits.github.io/consent2share/";
         Bundle patientSearchResponse;
         Bundle consentSearchResponse;
 
