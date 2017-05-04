@@ -2,7 +2,6 @@ package gov.samhsa.c2s.contexthandler.service;
 
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
-import gov.samhsa.c2s.contexthandler.service.dto.ConsentBundleAndPatientDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PatientIdDto;
 import gov.samhsa.c2s.contexthandler.service.dto.SubjectPurposeOfUse;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
