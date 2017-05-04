@@ -5,7 +5,6 @@ import ca.uhn.fhir.rest.client.IGenericClient;
 import ca.uhn.fhir.rest.gclient.DateClientParam;
 import ca.uhn.fhir.rest.gclient.ReferenceClientParam;
 import ca.uhn.fhir.rest.gclient.TokenClientParam;
-import ca.uhn.fhir.validation.FhirValidator;
 import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
 import gov.samhsa.c2s.common.consentgen.ConsentDto;
 import gov.samhsa.c2s.common.consentgen.ConsentGenException;
@@ -46,9 +45,6 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
     @Autowired
     private FhirContext fhirContext;
-
-    @Autowired
-    private FhirValidator fhirValidator;
 
     @Autowired
     private IGenericClient fhirClient;
