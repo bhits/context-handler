@@ -179,10 +179,8 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn){
         String system = "https://bhits.github.io/consent2share/";
         //String system = "http://www.example.com/random-mrns";
-                Bundle patientSearchResponse;
-        Bundle consentSearchResponse;
 
-        patientSearchResponse = fhirClient.search()
+        Bundle patientSearchResponse = fhirClient.search()
                 .forResource(Patient.class)
                 .where(new TokenClientParam("identifier")
                         .exactly()
@@ -191,11 +189,11 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 .execute();
 
         if(patientSearchResponse == null || patientSearchResponse.getEntry().size() < 1){
-            throw new PatientNotFound("No Patient found for the given MRN:" + mrn);
+            throw new PatientNotFound("No patient found for the given MRN:" + mrn);
         }
 
         if(patientSearchResponse.getEntry().size() > 1){
-            throw new MultiplePatientsFound("Multiple Patients found for the given MRN:" + mrn);
+            throw new MultiplePatientsFound("Multiple patients found for the given MRN:" + mrn);
         }
 
         Patient patientObj = (Patient) patientSearchResponse.getEntry().get(0).getResource();
@@ -203,7 +201,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         String patientResourceId = patientObj.getIdElement().getIdPart();
         String dateToday = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
-        consentSearchResponse = fhirClient.search()
+        Bundle consentSearchResponse = fhirClient.search()
                 .forResource(Consent.class)
                 .where(new ReferenceClientParam("patient")
                         .hasId(patientResourceId))
@@ -214,7 +212,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 .execute();
 
         if(consentSearchResponse == null || consentSearchResponse.getEntry().size() < 1){
-            throw new ConsentNotFound("No Consent found for the given MRN" + mrn);
+            throw new ConsentNotFound("No active consent found for date:" + dateToday + " and for the given MRN:" + mrn);
         }
 
         return new ConsentBundleAndPatientDto(consentSearchResponse, patientObj);
