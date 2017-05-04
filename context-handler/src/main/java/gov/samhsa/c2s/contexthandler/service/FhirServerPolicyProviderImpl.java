@@ -52,9 +52,6 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     private IGenericClient fhirClient;
 
     @Autowired
-    private FhirProperties fhirProperties;
-
-    @Autowired
     public FhirServerPolicyProviderImpl(ConsentBuilder consentBuilder) {
         this.consentBuilder = consentBuilder;
     }
