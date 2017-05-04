@@ -8,10 +8,9 @@ import ca.uhn.fhir.validation.FhirValidator;
 import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
 import gov.samhsa.c2s.common.consentgen.ConsentDto;
 import gov.samhsa.c2s.common.consentgen.ConsentGenException;
-import gov.samhsa.c2s.common.consentgen.IndividualProviderDto;
-import gov.samhsa.c2s.common.consentgen.OrganizationalProviderDto;
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
+import gov.samhsa.c2s.contexthandler.service.dto.ConsentBundleAndPatientDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.exception.ConsentNotFound;
 import gov.samhsa.c2s.contexthandler.service.exception.MockFileReadException;
@@ -57,11 +56,18 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     @Override
     public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException, PolicyProviderException {
         ConsentDto consentDto;
-        Consent fhirConsent = getMockFhirConsentObject();
+
+        ConsentBundleAndPatientDto consentBundleAndPatientDto = tempGetFhirConsent(xacmlRequest.getPatientId().getExtension());
+
+        Patient fhirPatient = consentBundleAndPatientDto.getPatient();
+
+        // FIXME: Temporarily only use first consent in bundle
+        Consent fhirConsent = (Consent) consentBundleAndPatientDto.getConsentSearchResponse().getEntry().get(0).getResource();
+
         logger.info("FHIR CONSENT: " + fhirConsent.toString());
 
         try {
-            consentDto = consentBuilder.buildFhirConsent2ConsentDto(fhirConsent);
+            consentDto = consentBuilder.buildFhirConsent2ConsentDto(fhirConsent, fhirPatient);
             logger.info("Conversion of FHIR Consent to ConsentDto complete.");
 
             if(consentDto.getProvidersPermittedToDisclose().size() > 0) {
@@ -76,12 +82,32 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                         .forEach(organizationalProviderDto -> logger.info(organizationalProviderDto.getNpi()));
             }
 
+            if(consentDto.getProvidersDisclosureIsMadeTo().size() > 0){
+                logger.info("INDIVIDUAL TO PROVIDER(S):");
+                consentDto.getProvidersDisclosureIsMadeTo()
+                        .forEach(individualProviderDto -> logger.info(individualProviderDto.getNpi()));
+            }
+
+            if(consentDto.getOrganizationalProvidersDisclosureIsMadeTo().size() > 0) {
+                logger.info("ORGANIZATIONAL TO PROVIDER(S):");
+                consentDto.getOrganizationalProvidersDisclosureIsMadeTo()
+                        .forEach(organizationalProviderDto -> logger.info(organizationalProviderDto.getNpi()));
+            }
+
         }catch (ConsentGenException e){
             logger.error("ConsentGenException occurred while trying to convert FHIR Consent object to ConsentDto object", e);
             throw new PolicyProviderException("Unable to process FHIR consent", e);
         }
 
-        logger.info("CONSENT DTO OBJECT: " + consentDto.getConsentReferenceid() + "; " + consentDto.getConsentStart() + "; " + consentDto.getConsentEnd() + "; " + consentDto.getOrganizationalProvidersPermittedToDisclose().stream().findFirst().map(OrganizationalProviderDto::getNpi).orElse("") + "; " + consentDto.getProvidersPermittedToDisclose().stream().findFirst().map(IndividualProviderDto::getNpi).orElse(""));
+        logger.info("CONSENT DTO OBJECT ID & DATES: " + consentDto.getConsentReferenceid() + "; " + consentDto.getConsentStart() + "; " + consentDto.getConsentEnd() + "; " + consentDto.getSignedDate() + "; " + consentDto.getRevocationDate());
+        logger.info("CONSENT DO NOT SHARE CLINICAL CONCEPT CODES: " + consentDto.getDoNotShareClinicalConceptCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
+        logger.info("CONSENT DO NOT SHARE SENSITIVITY POLICY CODES: " + consentDto.getDoNotShareSensitivityPolicyCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
+        logger.info("CONSENT DO NOT SHARE CLINICAL DOCUMENT TYPE CODES: " + consentDto.getDoNotShareClinicalDocumentTypeCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
+        logger.info("CONSENT DO NOT SHARE CLINICAL DOCUMENT SECTION TYPE CODES: " + consentDto.getDoNotShareClinicalDocumentSectionTypeCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
+        logger.info("CONSENT SHARE SENSITIVITY POLICY CODES: " + consentDto.getShareSensitivityPolicyCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
+        logger.info("CONSENT SHARE FOR PURPOSE OF USE CODES: " + consentDto.getShareForPurposeOfUseCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
+        logger.info("CONSENT PATIENT NAME: " + consentDto.getPatientDto().getFirstName() + " " + consentDto.getPatientDto().getLastName());
+        logger.info("CONSENT PATIENT MRN: " + consentDto.getPatientDto().getMedicalRecordNumber());
 
         return null;
     }
@@ -114,7 +140,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
     //temp method
     @Override
-    public Bundle tempGetFhirConsent(String mrn){
+    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn){
         String system = "http://www.example.com/random-mrns";
         Bundle patientSearchResponse;
         Bundle consentSearchResponse;
@@ -135,7 +161,9 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
             throw new MultiplePatientsFound("Multiple Patients found for the given MRN:" + mrn);
         }
 
-        String patientResourceId = patientSearchResponse.getEntry().get(0).getResource().getIdElement().getIdPart();
+        Patient patientObj = (Patient) patientSearchResponse.getEntry().get(0).getResource();
+
+        String patientResourceId = patientObj.getIdElement().getIdPart();
 
         consentSearchResponse = fhirClient.search()
                 .forResource(Consent.class)
@@ -148,7 +176,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
             throw new ConsentNotFound("No Consent found for the given MRN" + mrn);
         }
 
-        return consentSearchResponse;
+        return new ConsentBundleAndPatientDto(consentSearchResponse, patientObj);
     }
 
 }

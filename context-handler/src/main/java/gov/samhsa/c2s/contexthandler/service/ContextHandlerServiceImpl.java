@@ -2,11 +2,13 @@ package gov.samhsa.c2s.contexthandler.service;
 
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
+import gov.samhsa.c2s.contexthandler.service.dto.ConsentBundleAndPatientDto;
+import gov.samhsa.c2s.contexthandler.service.dto.PatientIdDto;
+import gov.samhsa.c2s.contexthandler.service.dto.SubjectPurposeOfUse;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
-import org.hl7.fhir.dstu3.model.Bundle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +56,7 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
     }
 
     @Override
-    public Bundle tempGetFhirConsent(String mrn) {
+    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn) {
         logger.info("tempGetFhirConsent service invoked. MRN = " + mrn);
         return policyProvider.tempGetFhirConsent(mrn);
     }

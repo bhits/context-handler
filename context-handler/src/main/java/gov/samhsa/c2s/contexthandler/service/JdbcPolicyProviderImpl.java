@@ -29,6 +29,7 @@ package gov.samhsa.c2s.contexthandler.service;
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.contexthandler.config.ContextHandlerProperties;
+import gov.samhsa.c2s.contexthandler.service.dto.ConsentBundleAndPatientDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
@@ -174,7 +175,7 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
 
     //temp method
     @Override
-    public Bundle tempGetFhirConsent(String mrn){
+    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn){
 
         return null;
     }
