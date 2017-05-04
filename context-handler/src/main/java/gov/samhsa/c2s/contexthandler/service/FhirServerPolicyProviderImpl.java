@@ -107,11 +107,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
             throw new PolicyProviderException("Unable to process FHIR consent", e);
         }
 
-        logger.info("CONSENT DTO OBJECT ID & DATES: " + consentDto.getConsentReferenceid() + "; " + consentDto.getConsentStart() + "; " + consentDto.getConsentEnd() + "; " + consentDto.getSignedDate() + "; " + consentDto.getRevocationDate());
-        logger.info("CONSENT DO NOT SHARE CLINICAL CONCEPT CODES: " + consentDto.getDoNotShareClinicalConceptCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
-        logger.info("CONSENT DO NOT SHARE SENSITIVITY POLICY CODES: " + consentDto.getDoNotShareSensitivityPolicyCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
-        logger.info("CONSENT DO NOT SHARE CLINICAL DOCUMENT TYPE CODES: " + consentDto.getDoNotShareClinicalDocumentTypeCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
-        logger.info("CONSENT DO NOT SHARE CLINICAL DOCUMENT SECTION TYPE CODES: " + consentDto.getDoNotShareClinicalDocumentSectionTypeCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
+        logger.info("CONSENT DTO OBJECT ID & DATES: " + consentDto.getConsentReferenceid() + "; " + consentDto.getConsentStart() + "; " + consentDto.getConsentEnd() + "; " + consentDto.getSignedDate());
         logger.info("CONSENT SHARE SENSITIVITY POLICY CODES: " + consentDto.getShareSensitivityPolicyCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
         logger.info("CONSENT SHARE FOR PURPOSE OF USE CODES: " + consentDto.getShareForPurposeOfUseCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
         logger.info("CONSENT PATIENT NAME: " + consentDto.getPatientDto().getFirstName() + " " + consentDto.getPatientDto().getLastName());

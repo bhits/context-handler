@@ -16,6 +16,6 @@ public class ConsentDtoFactoryImpl implements ConsentDtoFactory {
 
     @Override
     public ConsentDto createConsentDto(Object obj) {
-        return null;
+        return (ConsentDto) obj;
     }
 }
