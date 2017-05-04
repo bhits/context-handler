@@ -132,12 +132,4 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
         logger.info("Consent is queried.");
         return policies;
     }
-
-    //temp method
-    @Override
-    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn, String system){
-
-        return null;
-    }
-
 }

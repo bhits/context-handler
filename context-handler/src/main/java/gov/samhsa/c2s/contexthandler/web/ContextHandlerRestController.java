@@ -5,7 +5,6 @@ import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,11 +34,4 @@ public class ContextHandlerRestController {
         contextHandlerService.testFhirConversion();
     }
 
-    //FIXME: !!!REMOVE THE FOLLOWING BEFORE MERGING TO MASTER!!!
-    //Given a MRN, get bundle from FHIR server
-    @RequestMapping(value = "/tempGetFhirConsent/{mrn}/{system}", method = RequestMethod.GET)
-    public void tempGetFhirConsent(@PathVariable String mrn,
-                                   @PathVariable String system) throws C2SAuditException {
-        contextHandlerService.tempGetFhirConsent(mrn, system);
-    }
 }

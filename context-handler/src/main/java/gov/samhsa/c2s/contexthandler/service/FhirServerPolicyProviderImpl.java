@@ -60,7 +60,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException, PolicyProviderException {
         ConsentDto consentDto;
 
-        ConsentBundleAndPatientDto consentBundleAndPatientDto = tempGetFhirConsent(xacmlRequest.getPatientId().getExtension(), xacmlRequest.getPatientId().getRoot());
+        ConsentBundleAndPatientDto consentBundleAndPatientDto = searchForFhirPatientandFhirConsent(xacmlRequest.getPatientId().getRoot(), xacmlRequest.getPatientId().getExtension());
 
         Patient fhirPatient = consentBundleAndPatientDto.getPatient();
 
@@ -169,23 +169,21 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         return fhirConsent;
     }
 
-    //temp method
-    @Override
-    public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn, String mrnSystem){
+    private ConsentBundleAndPatientDto searchForFhirPatientandFhirConsent(String patientMrnSystem, String patientMrn){
         Bundle patientSearchResponse = fhirClient.search()
                 .forResource(Patient.class)
                 .where(new TokenClientParam("identifier")
                         .exactly()
-                        .systemAndCode(mrnSystem, mrn))
+                        .systemAndCode(patientMrnSystem, patientMrn))
                 .returnBundle(Bundle.class)
                 .execute();
 
         if(patientSearchResponse == null || patientSearchResponse.getEntry().size() < 1){
-            throw new PatientNotFound("No patient found for the given MRN:" + mrn);
+            throw new PatientNotFound("No patient found for the given MRN:" + patientMrn);
         }
 
         if(patientSearchResponse.getEntry().size() > 1){
-            throw new MultiplePatientsFound("Multiple patients found for the given MRN:" + mrn);
+            throw new MultiplePatientsFound("Multiple patients found for the given MRN:" + patientMrn);
         }
 
         Patient patientObj = (Patient) patientSearchResponse.getEntry().get(0).getResource();
@@ -204,7 +202,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 .execute();
 
         if(consentSearchResponse == null || consentSearchResponse.getEntry().size() < 1){
-            throw new ConsentNotFound("No active consent found for date:" + dateToday + " and for the given MRN:" + mrn);
+            throw new ConsentNotFound("No active consent found for date:" + dateToday + " and for the given MRN:" + patientMrn);
         }
 
         return new ConsentBundleAndPatientDto(consentSearchResponse, patientObj);

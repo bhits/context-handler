@@ -1,7 +1,6 @@
 package gov.samhsa.c2s.contexthandler.service;
 
 
-import gov.samhsa.c2s.contexthandler.service.dto.ConsentBundleAndPatientDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
@@ -24,6 +23,4 @@ public interface PolicyProvider {
      */
     List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException, PolicyProviderException;
 
-    //temp method
-    ConsentBundleAndPatientDto tempGetFhirConsent(String mrn, String system);
 }
