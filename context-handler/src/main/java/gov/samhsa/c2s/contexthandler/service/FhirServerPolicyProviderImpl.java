@@ -15,12 +15,10 @@ import gov.samhsa.c2s.contexthandler.config.FhirProperties;
 import gov.samhsa.c2s.contexthandler.service.dto.ConsentBundleAndPatientDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.exception.ConsentNotFound;
-import gov.samhsa.c2s.contexthandler.service.exception.MockFileReadException;
 import gov.samhsa.c2s.contexthandler.service.exception.MultiplePatientsFound;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PatientNotFound;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Consent;
@@ -29,9 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -39,8 +34,6 @@ import java.util.List;
 @Service
 @ConditionalOnBean(FhirProperties.class)
 public class FhirServerPolicyProviderImpl implements PolicyProvider {
-    private static final String MOCK_FHIR_CONSENT_FILENAME = "mockFhirConsent.json";
-
     private final ConsentBuilder consentBuilder;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -141,32 +134,6 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         logger.info(consentXacmlString);
 
         return null;
-    }
-
-
-    private Consent getMockFhirConsentObject(){
-        ClassLoader classLoader = getClass().getClassLoader();
-        ObjectMapper objectMapper = new ObjectMapper();
-        File file;
-        Consent fhirConsent;
-
-        try{
-            //noinspection ConstantConditions
-            file = new File(classLoader.getResource(MOCK_FHIR_CONSENT_FILENAME).getFile());
-        }catch(NullPointerException e){
-            logger.error("Error getting mock file", e);
-            throw new MockFileReadException(e);
-        }
-
-        try(FileReader fileReader = new FileReader(file)){
-            fhirConsent = fhirContext.newJsonParser().parseResource(Consent.class, fileReader);
-            logger.info("Mock FHIR consent successfully read from file and mapped to FHIR Consent object.");
-        }catch(IOException e){
-            logger.error("Error reading mock file from input stream", e);
-            throw new MockFileReadException(e);
-        }
-
-        return fhirConsent;
     }
 
     private ConsentBundleAndPatientDto searchForFhirPatientandFhirConsent(String patientMrnSystem, String patientMrn){
