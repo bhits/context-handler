@@ -19,4 +19,33 @@ public class FhirProperties {
 
     @NotEmpty
     private String clientSocketTimeoutInMs;
+
+    private Ssn ssn;
+    private Npi npi;
+    private Pou pou;
+    private Mrn mrn;
+
+    @Data
+    public static class Identifier {
+        @NotNull
+        private String system;
+
+        @NotEmpty
+        private String oid;
+
+        @NotEmpty
+        private String label;
+    }
+
+    @Data
+    public static class Mrn extends Identifier{ }
+
+    @Data
+    public static class Ssn extends Identifier{ }
+
+    @Data
+    public static class Npi extends Identifier{ }
+
+    @Data
+    public static class Pou extends Identifier{ }
 }

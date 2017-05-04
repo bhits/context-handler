@@ -12,6 +12,7 @@ import gov.samhsa.c2s.common.consentgen.ConsentGenException;
 import gov.samhsa.c2s.common.consentgen.PatientDto;
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
+import gov.samhsa.c2s.contexthandler.config.FhirProperties;
 import gov.samhsa.c2s.contexthandler.service.dto.ConsentBundleAndPatientDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.exception.ConsentNotFound;
@@ -51,6 +52,9 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
     @Autowired
     private IGenericClient fhirClient;
+
+    @Autowired
+    private FhirProperties fhirProperties;
 
     @Autowired
     public FhirServerPolicyProviderImpl(ConsentBuilder consentBuilder) {
@@ -177,14 +181,13 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     //temp method
     @Override
     public ConsentBundleAndPatientDto tempGetFhirConsent(String mrn){
-        String system = "https://bhits.github.io/consent2share/";
-        //String system = "http://www.example.com/random-mrns";
+        String mrnSystem = fhirProperties.getMrn().getSystem();
 
         Bundle patientSearchResponse = fhirClient.search()
                 .forResource(Patient.class)
                 .where(new TokenClientParam("identifier")
                         .exactly()
-                        .systemAndCode(system, mrn))
+                        .systemAndCode(mrnSystem, mrn))
                 .returnBundle(Bundle.class)
                 .execute();
 
