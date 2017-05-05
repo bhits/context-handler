@@ -60,46 +60,14 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         // FIXME: Temporarily only use first consent in bundle
         Consent fhirConsent = (Consent) consentListAndPatientDto.getMatchingConsents().get(0);
 
-        logger.info("FHIR CONSENT: " + fhirConsent.toString());
 
         try {
             consentDto = consentBuilder.buildFhirConsent2ConsentDto(fhirConsent, fhirPatient);
             logger.info("Conversion of FHIR Consent to ConsentDto complete.");
-
-            if(consentDto.getProvidersPermittedToDisclose().size() > 0) {
-                logger.info("INDIVIDUAL FROM PROVIDER(S):");
-                consentDto.getProvidersPermittedToDisclose()
-                        .forEach(individualProviderDto -> logger.info(individualProviderDto.getNpi()));
-            }
-
-            if(consentDto.getOrganizationalProvidersPermittedToDisclose().size() > 0) {
-                logger.info("ORGANIZATIONAL FROM PROVIDER(S):");
-                consentDto.getOrganizationalProvidersPermittedToDisclose()
-                        .forEach(organizationalProviderDto -> logger.info(organizationalProviderDto.getNpi()));
-            }
-
-            if(consentDto.getProvidersDisclosureIsMadeTo().size() > 0){
-                logger.info("INDIVIDUAL TO PROVIDER(S):");
-                consentDto.getProvidersDisclosureIsMadeTo()
-                        .forEach(individualProviderDto -> logger.info(individualProviderDto.getNpi()));
-            }
-
-            if(consentDto.getOrganizationalProvidersDisclosureIsMadeTo().size() > 0) {
-                logger.info("ORGANIZATIONAL TO PROVIDER(S):");
-                consentDto.getOrganizationalProvidersDisclosureIsMadeTo()
-                        .forEach(organizationalProviderDto -> logger.info(organizationalProviderDto.getNpi()));
-            }
-
         }catch (ConsentGenException e){
             logger.error("ConsentGenException occurred while trying to convert FHIR Consent object to ConsentDto object", e);
             throw new PolicyProviderException("Unable to process FHIR consent", e);
         }
-
-        logger.info("CONSENT DTO OBJECT ID & DATES: " + consentDto.getConsentReferenceid() + "; " + consentDto.getConsentStart() + "; " + consentDto.getConsentEnd() + "; " + consentDto.getSignedDate());
-        logger.info("CONSENT SHARE SENSITIVITY POLICY CODES: " + consentDto.getShareSensitivityPolicyCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
-        logger.info("CONSENT SHARE FOR PURPOSE OF USE CODES: " + consentDto.getShareForPurposeOfUseCodes().stream().map(tcd -> tcd.getCode() + " - " + tcd.getCodeSystem() + ", ").reduce("", String::concat));
-        logger.info("CONSENT PATIENT NAME: " + consentDto.getPatientDto().getFirstName() + " " + consentDto.getPatientDto().getLastName());
-        logger.info("CONSENT PATIENT MRN: " + consentDto.getPatientDto().getMedicalRecordNumber());
 
         consentDto.setLegalRepresentative(new PatientDto());
         consentDto.setVersion(0);
@@ -241,7 +209,5 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         return matchingConsents;
 
     }
-
-
 
 }
