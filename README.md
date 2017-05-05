@@ -1,6 +1,6 @@
 # Context Handler API
 
-The Context Handler API is a RESTful web service component of Consent2Share (C2S). It is responsible for sending XACML response context that includes authorization decisions along with applied policy obligations to Policy Enforcement Point (PEP) API components. The Context Handler sends the XACML request context to the Policy Decision Point (PDP). The PDP evaluates the applicable policies either from the Patient Consent Management (PCM) or a Fast Healthcare Interoperability Resource (FHIR) server against the request context, and returns the response context that includes authorization decisions along with obligations of applied policies to the Context Handler. The Context Handler sends XACML response context back to PEP component. The PDP uses [HERAS-AF](https://bitbucket.org/herasaf/herasaf-xacml-core/overview), an open source XACML 2.0 implementation, for XACML evaluation and uses either a PCM database as a local policy repository or a FHIR server to retrieve XACML policies that are generated from patients’ consents.
+The Context Handler API is a RESTful web service component of Consent2Share. It is responsible for sending XACML response context that includes authorization decisions along with applied policy obligations to Policy Enforcement Point (PEP) API components. The Context Handler sends the XACML request context to the Policy Decision Point (PDP). The PDP evaluates the applicable policies either from the Patient Consent Management (PCM) or a Fast Healthcare Interoperability Resource (FHIR) server against the request context, and returns the response context that includes authorization decisions along with obligations of applied policies to the Context Handler. The Context Handler sends XACML response context back to the PEP component. The PDP uses [HERAS-AF](https://bitbucket.org/herasaf/herasaf-xacml-core/overview), an open source XACML 2.0 implementation, for XACML evaluation, and uses either a PCM database as a local policy repository or a FHIR server to retrieve XACML policies that are generated from patients’ consents.
    
 
 ## Build
@@ -13,7 +13,7 @@ The Context Handler API is a RESTful web service component of Consent2Share (C2S
 
 ### Commands
 
-This is a Maven project and requires [Apache Maven](https://maven.apache.org/) 3.3.3 or greater to build it. It is recommended to use the *Maven Wrapper* scripts provided with this project. *Maven Wrapper* requires an internet connection to download Maven and project dependencies for the very first build.
+This is a Maven project and requires [Apache Maven](https://maven.apache.org/) 3.3.3 or greater to build it. It is recommended to use the *Maven Wrapper* scripts provided with this project. *Maven Wrapper* requires an Internet connection to download Maven and project dependencies for the very first build.
 
 To build the project, navigate to the folder that contains `pom.xml` file using the terminal/command line.
 
@@ -28,7 +28,7 @@ To build the project, navigate to the folder that contains `pom.xml` file using 
 
 ### Prerequisites
 
-1. This API uses the PCM database as a local policy repository to retrieve XACML policies. Thus, it needs to have a database user configuration with read privileges to the PCM database. Please see [Configure](#configure) section for details of configuring the data source.
+1. This API uses the PCM database as a local policy repository to retrieve XACML policies. Thus, it needs to have a database user configuration with read privileges to the PCM database. Please see the [Configure](#configure) section for details of configuring the data source.
 2. As an alternative, this API can also be configured to retrieve XACML policies from a FHIR server. The following properties are required to be added in `application.yml`. Please see [Configure](#configure) section for more details.
 ```yml
 c2s:
@@ -56,10 +56,10 @@ c2s:
 	        oid: urn:oid:1.3.6.1.4.1.21367.13.20.200
 	        label: MRN
     ...
-
 ```
-3. This API also needs to call Logback-Audit server, so please following the [Logback-Audit deployment instruction](https://github.com/bhits/logback-audit) to set it up
-4. After Logback-Audit server is up, the hostname (currently is localhost) in the [default configuration](context-handler/src/main/resources/application.yml) need to be replaced with the real server name
+
+3. This API also needs to call the Logback-Audit server, so please follow the [Logback-Audit deployment instruction](https://github.com/bhits/logback-audit) to set it up.
+4. After the Logback-Audit server is up, the hostname (currently is localhost) in the [default configuration](context-handler/src/main/resources/application.yml) needs to be replaced with the real server name.
 Logback-Audit configuration section in the configuration file
 
 ```yml
@@ -76,7 +76,7 @@ This is a [Spring Boot](https://projects.spring.io/spring-boot/) project and ser
 + Run as a JAR file: `java -jar context-handler-x.x.x-SNAPSHOT.jar <additional program arguments>`
 + Run as a Docker Container: `docker run -d bhits/context-handler:latest <additional program arguments>`
 
-*NOTE: In order for this API to fully function as a microservice in the C2S application, it is required to setup the dependency microservices and support level infrastructure. Please refer to the [C2S Deployment Guide](https://github.com/bhits/consent2share/releases/download/2.1.0/c2s-deployment-guide.pdf) for instructions to setup the C2S infrastructure.*
+*NOTE: In order for this API to fully function as a microservice in the Consent2Share application, it is required to set up the dependency microservices and support level infrastructure. Please refer to the [Consent2Share Deployment Guide](https://github.com/bhits/consent2share/releases/download/2.1.0/c2s-deployment-guide.pdf) for instructions to set up the Consent2Share infrastructure.*
 
 ## Configure
 
