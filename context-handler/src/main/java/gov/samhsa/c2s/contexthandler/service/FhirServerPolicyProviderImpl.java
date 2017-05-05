@@ -7,11 +7,12 @@ import ca.uhn.fhir.rest.gclient.TokenClientParam;
 import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
 import gov.samhsa.c2s.common.consentgen.ConsentDto;
 import gov.samhsa.c2s.common.consentgen.ConsentGenException;
-import gov.samhsa.c2s.common.consentgen.PatientDto;
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.contexthandler.config.FhirProperties;
 import gov.samhsa.c2s.contexthandler.service.dto.ConsentListAndPatientDto;
+import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
+import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.exception.ConsentNotFound;
 import gov.samhsa.c2s.contexthandler.service.exception.MultiplePatientsFound;
@@ -19,6 +20,7 @@ import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PatientNotFound;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyNotFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
+import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Consent;
@@ -29,10 +31,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @ConditionalOnBean(FhirProperties.class)
@@ -44,64 +49,70 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     @Autowired
     private IGenericClient fhirClient;
 
+    private final XacmlPolicySetService xacmlPolicySetService;
+
     @Autowired
-    public FhirServerPolicyProviderImpl(ConsentBuilder consentBuilder) {
+    public FhirServerPolicyProviderImpl(ConsentBuilder consentBuilder, XacmlPolicySetService xacmlPolicySetService) {
         this.consentBuilder = consentBuilder;
+        this.xacmlPolicySetService = xacmlPolicySetService;
     }
 
     @Override
     public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException, PolicyProviderException{
-        ConsentDto consentDto;
-
         ConsentListAndPatientDto consentListAndPatientDto = searchForFhirPatientAndFhirConsent(xacmlRequest);
-
         Patient fhirPatient = consentListAndPatientDto.getPatient();
 
-        // FIXME: Temporarily only use first consent in bundle
-        Consent fhirConsent = (Consent) consentListAndPatientDto.getMatchingConsents().get(0);
+        List<Consent> fhirConsentList = consentListAndPatientDto.getMatchingConsents();
 
+        List<ConsentDto> consentDtoList = convertFhirConsentListToConsentDtoList(fhirConsentList, fhirPatient);
+        List<PolicyDto> policyDtoList = convertConsentDtoListToXacmlPolicyDtoList(consentDtoList);
 
-        try {
-            consentDto = consentBuilder.buildFhirConsent2ConsentDto(fhirConsent, fhirPatient);
-            logger.info("Conversion of FHIR Consent to ConsentDto complete.");
-        }catch (ConsentGenException e){
-            logger.error("ConsentGenException occurred while trying to convert FHIR Consent object to ConsentDto object", e);
-            throw new PolicyProviderException("Unable to process FHIR consent", e);
-        }
+        PolicyContainerDto policyContainerDto = PolicyContainerDto.builder().policies(policyDtoList).build();
 
-        consentDto.setLegalRepresentative(new PatientDto());
-        consentDto.setVersion(0);
+        Evaluatable policySet = xacmlPolicySetService.getPoliciesCombinedAsPolicySet(
+                policyContainerDto,
+                UUID.randomUUID().toString(),
+                PolicyCombiningAlgIds.DENY_OVERRIDES.getUrn()
+        );
 
-        PatientDto patientDto = consentDto.getPatientDto();
-        patientDto.setPatientIdNumber("");
-        patientDto.setAddressCity("");
-        patientDto.setAddressCountryCode("");
-        patientDto.setAddressPostalCode("");
-        patientDto.setAddressStateCode("");
-        patientDto.setAddressStreetAddressLine("");
-        patientDto.setAdministrativeGenderCode("");
-        patientDto.setBirthDate(new Date());
-        patientDto.setEmail("");
-        patientDto.setEnterpriseIdentifier("");
-        patientDto.setPrefix("");
-        patientDto.setSocialSecurityNumber("");
-        patientDto.setTelephoneTypeTelephone("");
+        return Collections.singletonList(policySet);
+    }
 
-        consentDto.setPatientDto(patientDto);
-
-        String consentXacmlString;
+    private List<PolicyDto> convertConsentDtoListToXacmlPolicyDtoList(List<ConsentDto> consentDtoList){
+        List<PolicyDto> policyDtoList = new ArrayList<>();
 
         try{
-            consentXacmlString = consentBuilder.buildConsent2Xacml(consentDto);
+            for(ConsentDto consentDto : consentDtoList){
+                String consentXacmlString = consentBuilder.buildConsent2Xacml(consentDto);
+                PolicyDto policyDto = new PolicyDto();
+                policyDto.setId(consentDto.getConsentReferenceid());
+                policyDto.setPolicy(consentXacmlString.getBytes(StandardCharsets.UTF_8));
+
+                policyDtoList.add(policyDto);
+            }
+            logger.info("Conversion of ConsentDto list to XACML PolicyDto list complete.");
         }catch (ConsentGenException e){
-            logger.error("ConsentGenException occurred while trying to convert ConsentDto object to XACML", e);
-            throw new PolicyProviderException("Unable to process FHIR consent", e);
+            logger.error("ConsentGenException occurred while trying to convert ConsentDto object(s) to XACML PolicyDto object(s)", e);
+            throw new PolicyProviderException("Unable to process FHIR consent(s)", e);
         }
 
-        logger.info("XACML:");
-        logger.info(consentXacmlString);
+        return policyDtoList;
+    }
 
-        return null;
+    private List<ConsentDto> convertFhirConsentListToConsentDtoList(List<Consent> fhirConsentList, Patient fhirPatient){
+        List<ConsentDto> consentDtoList = new ArrayList<>();
+
+        try {
+            for(Consent fhirConsent : fhirConsentList){
+                consentDtoList.add(consentBuilder.buildFhirConsent2ConsentDto(fhirConsent, fhirPatient));
+            }
+            logger.info("Conversion of FHIR Consent list to ConsentDto list complete.");
+        }catch (ConsentGenException e){
+            logger.error("ConsentGenException occurred while trying to convert FHIR Consent object(s) to ConsentDto object(s)", e);
+            throw new PolicyProviderException("Unable to process FHIR consent(s)", e);
+        }
+
+        return consentDtoList;
     }
 
     private ConsentListAndPatientDto searchForFhirPatientAndFhirConsent(XacmlRequestDto xacmlRequest){
