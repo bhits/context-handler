@@ -34,7 +34,6 @@ public class SecurityConfig {
                         .antMatchers(HttpMethod.POST, "/policyEnforcement/**").permitAll()
                         // FIXME: !!!REMOVE THE FOLLOWING LINE BEFORE COMMITING!!!
                         .antMatchers(HttpMethod.GET, "/tempGetMockedFhirConsent").permitAll()
-                        .antMatchers(HttpMethod.GET, "/tempGetFhirConsent/**").permitAll()
                         // Security scope for accessing management endpoint
                         .antMatchers(HttpMethod.GET, "/management/**").access(hasScope("contextHandler.management"))
                         .antMatchers(HttpMethod.POST, "/management/**").access(hasScope("contextHandler.management"))
