@@ -201,6 +201,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
                 if(fhirFromProviderNpi.equalsIgnoreCase(xacmlRequest.getRecipientNpi())){
                     toProviderMatched = true;
+                    break;
                 }
 
             }
