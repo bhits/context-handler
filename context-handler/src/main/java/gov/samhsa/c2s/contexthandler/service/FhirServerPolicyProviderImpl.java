@@ -128,10 +128,13 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 .execute();
 
         if(patientSearchResponse == null || patientSearchResponse.getEntry().size() < 1){
+            logger.debug("No patient found in FHIR server with the given MRN: " + patientMrn);
             throw new PatientNotFound("No patient found for the given MRN");
         }
 
         if(patientSearchResponse.getEntry().size() > 1){
+            logger.warn("Multiple patients were found in FHIR server for the same given MRN: " + patientMrn);
+            logger.debug("       URL of FHIR Server: " + fhirClient.getServerBase());
             throw new MultiplePatientsFound("Multiple patients found in FHIR server with the given MRN");
         }
 
@@ -151,8 +154,11 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 .execute();
 
         if(consentSearchResponse == null || consentSearchResponse.getEntry().size() < 1){
+            logger.debug("No active consents matching query parameters were found in FHIR server during search in 'searchForFhirPatientAndFhirConsent' method");
             throw new ConsentNotFound("No active consent found for date:" + dateToday + " and for the given MRN:" + patientMrn);
         }
+
+        logger.debug("FHIR Consent(s) bundle retrieved from FHIR server successfully");
 
         List<Consent> matchingConsents = filterMatchingConsentsFromBundle(consentSearchResponse, xacmlRequest);
 
@@ -179,6 +185,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 fhirToProviderReferenceList.forEach(fhirToProviderReference ->
                         fhirToProviderResourceList.add((DomainResource) fhirToProviderReference.getResource()));
             }else{
+                logger.error("One or more FHIR Consents in bundle passed to 'filterMatchingConsentsFromBundle' does not have any recipient(s) specified");
                 throw new FhirConsentInvalidException("The FHIR consent does not have any recipient(s) specified");
             }
 
@@ -188,6 +195,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 try {
                     fhirFromProviderNpi = consentBuilder.extractNpiFromFhirProviderResource(fhirToProviderResource);
                 } catch (ConsentGenException e) {
+                    logger.error("ConsentGenException occurred while attempting to extract NPI from recipient FHIR provider resource in 'filterMatchingConsentsFromBundle' method", e);
                     throw new FhirConsentInvalidException("Error extracting NPI from recipient Provider resource", e);
                 }
 
@@ -203,6 +211,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
             try {
                 fhirFromProviderNpi = consentBuilder.extractNpiFromFhirProviderResource(fhirFromProviderResource);
             } catch (ConsentGenException e) {
+                logger.error("ConsentGenException occurred while attempting to extract NPI from intermediary FHIR provider resource in 'filterMatchingConsentsFromBundle' method", e);
                 throw new FhirConsentInvalidException("Error extracting NPI from intermediary Provider resource", e);
             }
 
@@ -215,6 +224,8 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 matchingConsents.add(tempConsent);
             }
         }
+
+        logger.debug("FHIR Consent(s) bundle successfully filtered based on XacmlRequest object fields");
 
         return matchingConsents;
 
