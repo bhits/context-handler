@@ -53,7 +53,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException, PolicyProviderException{
         ConsentDto consentDto;
 
-        ConsentListAndPatientDto consentListAndPatientDto = searchForFhirPatientandFhirConsent(xacmlRequest);
+        ConsentListAndPatientDto consentListAndPatientDto = searchForFhirPatientAndFhirConsent(xacmlRequest);
 
         Patient fhirPatient = consentListAndPatientDto.getPatient();
 
@@ -136,7 +136,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         return null;
     }
 
-    private ConsentListAndPatientDto searchForFhirPatientandFhirConsent(XacmlRequestDto xacmlRequest){
+    private ConsentListAndPatientDto searchForFhirPatientAndFhirConsent(XacmlRequestDto xacmlRequest){
 
         String patientMrnSystem = xacmlRequest.getPatientId().getRoot();
         String patientMrn = xacmlRequest.getPatientId().getExtension();
@@ -176,7 +176,12 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
             throw new ConsentNotFound("No active consent found for date:" + dateToday + " and for the given MRN:" + patientMrn);
         }
 
+        List<Consent> matchingConsents = filterMatchingConsentsFromBundle(consentSearchResponse, xacmlRequest);
 
+        return new ConsentListAndPatientDto(matchingConsents, patientObj);
+    }
+
+    private List<Consent> filterMatchingConsentsFromBundle(Bundle consentSearchResponse, XacmlRequestDto xacmlRequest){
         //Loop through the consents to filter out those that match the xacmlRequest
 
         List<Bundle.BundleEntryComponent> retrievedConsents = consentSearchResponse.getEntry();
@@ -201,11 +206,11 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
             for (DomainResource fhirToProviderResource : fhirToProviderResourceList) {
 
-                String fhirFromProviderNpi = null;
+                String fhirFromProviderNpi;
                 try {
                     fhirFromProviderNpi = consentBuilder.extractNpiFromFhirProviderResource(fhirToProviderResource);
                 } catch (ConsentGenException e) {
-                    throw new ConsentNotFound("Error extracting NPI from recepient Provider resource: "+ e);
+                    throw new ConsentNotFound("Error extracting NPI from recipient Provider resource: "+ e);
                 }
 
                 if(fhirFromProviderNpi.equalsIgnoreCase(xacmlRequest.getRecipientNpi())){
@@ -216,7 +221,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
             //Check "From" Provider
             DomainResource fhirFromProviderResource = (DomainResource) tempConsent.getOrganization().getResource();
-            String fhirFromProviderNpi = null;
+            String fhirFromProviderNpi;
             try {
                 fhirFromProviderNpi = consentBuilder.extractNpiFromFhirProviderResource(fhirFromProviderResource);
             } catch (ConsentGenException e) {
@@ -227,13 +232,16 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 fromProviderMatched = true;
             }
 
-            //Add only when all checks are passed
+            //Add to the list only when all the checks are passed
             if(toProviderMatched && fromProviderMatched){
                 matchingConsents.add(tempConsent);
             }
         }
 
-        return new ConsentListAndPatientDto(matchingConsents, patientObj);
+        return matchingConsents;
+
     }
+
+
 
 }
