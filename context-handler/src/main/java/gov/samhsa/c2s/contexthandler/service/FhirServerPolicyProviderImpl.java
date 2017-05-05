@@ -15,10 +15,10 @@ import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.exception.ConsentNotFound;
+import gov.samhsa.c2s.contexthandler.service.exception.FhirConsentInvalidException;
 import gov.samhsa.c2s.contexthandler.service.exception.MultiplePatientsFound;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PatientNotFound;
-import gov.samhsa.c2s.contexthandler.service.exception.PolicyNotFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
 import org.herasaf.xacml.core.policy.Evaluatable;
@@ -116,7 +116,6 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
     }
 
     private ConsentListAndPatientDto searchForFhirPatientAndFhirConsent(XacmlRequestDto xacmlRequest){
-
         String patientMrnSystem = xacmlRequest.getPatientId().getRoot();
         String patientMrn = xacmlRequest.getPatientId().getExtension();
 
@@ -129,11 +128,11 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 .execute();
 
         if(patientSearchResponse == null || patientSearchResponse.getEntry().size() < 1){
-            throw new PatientNotFound("No patient found for the given MRN:" + patientMrn);
+            throw new PatientNotFound("No patient found for the given MRN");
         }
 
         if(patientSearchResponse.getEntry().size() > 1){
-            throw new MultiplePatientsFound("Multiple patients found for the given MRN:" + patientMrn);
+            throw new MultiplePatientsFound("Multiple patients found in FHIR server with the given MRN");
         }
 
         Patient patientObj = (Patient) patientSearchResponse.getEntry().get(0).getResource();
@@ -180,7 +179,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 fhirToProviderReferenceList.forEach(fhirToProviderReference ->
                         fhirToProviderResourceList.add((DomainResource) fhirToProviderReference.getResource()));
             }else{
-                throw new PolicyNotFoundException("The FHIR consent does not have any recipient(s) specified");
+                throw new FhirConsentInvalidException("The FHIR consent does not have any recipient(s) specified");
             }
 
             for (DomainResource fhirToProviderResource : fhirToProviderResourceList) {
@@ -189,7 +188,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 try {
                     fhirFromProviderNpi = consentBuilder.extractNpiFromFhirProviderResource(fhirToProviderResource);
                 } catch (ConsentGenException e) {
-                    throw new ConsentNotFound("Error extracting NPI from recipient Provider resource: "+ e);
+                    throw new FhirConsentInvalidException("Error extracting NPI from recipient Provider resource", e);
                 }
 
                 if(fhirFromProviderNpi.equalsIgnoreCase(xacmlRequest.getRecipientNpi())){
@@ -204,7 +203,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
             try {
                 fhirFromProviderNpi = consentBuilder.extractNpiFromFhirProviderResource(fhirFromProviderResource);
             } catch (ConsentGenException e) {
-                throw new ConsentNotFound("Error extracting NPI from intermediary Provider resource: " + e);
+                throw new FhirConsentInvalidException("Error extracting NPI from intermediary Provider resource", e);
             }
 
             if(fhirFromProviderNpi.equalsIgnoreCase(xacmlRequest.getIntermediaryNpi())){
