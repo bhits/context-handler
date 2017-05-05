@@ -3,7 +3,7 @@ package gov.samhsa.c2s.contexthandler.service.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
+@ResponseStatus(value = HttpStatus.NOT_FOUND, reason ="Patient not found for the given MRN")
 public class PatientNotFound extends RuntimeException {
     public PatientNotFound() {
         super();

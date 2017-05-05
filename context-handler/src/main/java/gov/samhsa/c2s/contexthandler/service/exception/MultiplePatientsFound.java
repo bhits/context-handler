@@ -1,5 +1,9 @@
 package gov.samhsa.c2s.contexthandler.service.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(value = HttpStatus.CONFLICT, reason ="Multiple patients found for the given MRN" )
 public class MultiplePatientsFound extends RuntimeException {
     public MultiplePatientsFound() {
         super();
