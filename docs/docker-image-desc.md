@@ -1,5 +1,5 @@
 # Short Description
-This API sends XACML response context, including authorization decisions and applied policy obligations, to Policy Enforcement Point (PEP) API components.  
+This API sends XACML response having authorization decisions with applied policy obligations to PEP. 
 
 # Full Description
 
