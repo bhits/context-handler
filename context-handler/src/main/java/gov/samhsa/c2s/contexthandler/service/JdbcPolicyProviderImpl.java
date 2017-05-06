@@ -1,10 +1,8 @@
 package gov.samhsa.c2s.contexthandler.service;
 
-
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.contexthandler.config.ContextHandlerProperties;
-import gov.samhsa.c2s.contexthandler.config.FhirProperties;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
@@ -14,7 +12,7 @@ import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyDtoRowMapper;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +25,7 @@ import static gov.samhsa.c2s.contexthandler.service.util.AssertionUtils.assertPo
 import static gov.samhsa.c2s.contexthandler.service.util.AssertionUtils.assertPolicyId;
 
 @Service
-@ConditionalOnMissingBean(FhirProperties.class)
+@ConditionalOnProperty(name = "c2s.context-handler.fhir.enabled", havingValue = "false")
 public class JdbcPolicyProviderImpl implements PolicyProvider {
 
     public static final String SQL_GET_XACML_CONSENT_WC = "select consent.consent_reference_id, consent.xacml_ccd  "
@@ -81,11 +79,7 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
                         .randomUUID().toString(),
                 PolicyCombiningAlgIds.DENY_OVERRIDES.getUrn());
 
-        // FIXME: REMOVE THIS LINE!!!
-        logger.error("JdbcPolicyProviderImpl executed!");
-
         return Arrays.asList(policySet);
-
     }
 
     private String toPolicyId(String pid, String pidDomain,

@@ -5,6 +5,7 @@ import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.common.marshaller.SimpleMarshaller;
 import gov.samhsa.c2s.contexthandler.config.ContextHandlerProperties;
+import gov.samhsa.c2s.contexthandler.config.FhirProperties;
 import gov.samhsa.c2s.contexthandler.service.dto.PdpAttributesDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PdpRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
@@ -12,6 +13,7 @@ import org.herasaf.xacml.core.SyntaxException;
 import org.herasaf.xacml.core.context.RequestMarshaller;
 import org.herasaf.xacml.core.context.impl.RequestType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -39,6 +41,13 @@ public class RequestGenerator {
     @Autowired
     private ContextHandlerProperties contextHandlerProperties;
 
+    private final FhirProperties fhirProperties;
+
+    @Autowired
+    public RequestGenerator(FhirProperties fhirProperties) {
+        this.fhirProperties = fhirProperties;
+    }
+
     Function<XacmlRequestDto, PdpRequestDto> XacmlRequestDtoToPdpRequestDto = new Function<XacmlRequestDto, PdpRequestDto>() {
         @Override
         public PdpRequestDto apply(XacmlRequestDto xacmlRequestDto) {
@@ -52,9 +61,16 @@ public class RequestGenerator {
             subjectAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.SUBJECT_INTERMEDIARY.getAttributeId())
                     .attributeValue(xacmlRequestDto.getIntermediaryNpi())
                     .attributeType(PdpAttributeIds.SUBJECT_INTERMEDIARY.getAttributeType()).build());
-            subjectAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.SUBJECT_POU.getAttributeId())
-                    .attributeValue(xacmlRequestDto.getPurposeOfUse().getPurpose())
-                    .attributeType(PdpAttributeIds.SUBJECT_POU.getAttributeType()).build());
+
+            if(fhirProperties.isEnabled()){
+                subjectAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.SUBJECT_POU.getAttributeId())
+                        .attributeValue(xacmlRequestDto.getPurposeOfUse().getPurposeFhir())
+                        .attributeType(PdpAttributeIds.SUBJECT_POU.getAttributeType()).build());
+            }else{
+                subjectAttributes.add(new PdpAttributesDto().builder().attributeId(PdpAttributeIds.SUBJECT_POU.getAttributeId())
+                        .attributeValue(xacmlRequestDto.getPurposeOfUse().getPurpose())
+                        .attributeType(PdpAttributeIds.SUBJECT_POU.getAttributeType()).build());
+            }
 
             pdpRequestDto.setSubjectAttributes(subjectAttributes);
 

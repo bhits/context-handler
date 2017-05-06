@@ -7,7 +7,6 @@ import ca.uhn.fhir.rest.gclient.TokenClientParam;
 import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
 import gov.samhsa.c2s.common.consentgen.ConsentDto;
 import gov.samhsa.c2s.common.consentgen.ConsentGenException;
-import gov.samhsa.c2s.contexthandler.config.FhirProperties;
 import gov.samhsa.c2s.contexthandler.service.dto.ConsentListAndPatientDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
@@ -27,20 +26,21 @@ import org.hl7.fhir.dstu3.model.DomainResource;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
-@ConditionalOnBean(FhirProperties.class)
 @Slf4j
+@ConditionalOnProperty(name = "c2s.context-handler.fhir.enabled", havingValue = "true")
 public class FhirServerPolicyProviderImpl implements PolicyProvider {
     private final ConsentBuilder consentBuilder;
 
@@ -73,7 +73,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 PolicyCombiningAlgIds.DENY_OVERRIDES.getUrn()
         );
 
-        return Collections.singletonList(policySet);
+        return Arrays.asList(policySet);
     }
 
     private List<PolicyDto> convertConsentDtoListToXacmlPolicyDtoList(List<ConsentDto> consentDtoList){
@@ -173,6 +173,8 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
             boolean fromProviderMatched = false;
             boolean toProviderMatched = false;
+            boolean purposeOfUseMatched = false;
+
             Consent tempConsent = (Consent) tempBundleEntryComponent.getResource();
 
             //Check "To" Provider
@@ -218,8 +220,19 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 fromProviderMatched = true;
             }
 
+            //Check purpose of use
+            if(tempConsent.hasPurpose()){
+                int filteredPurposeSize = tempConsent.getPurpose().stream()
+                        .filter(pou -> pou.getCode().equals(xacmlRequest.getPurposeOfUse().getPurposeFhir()))
+                        .collect(Collectors.toList()).size();
+
+                if(filteredPurposeSize > 0){
+                    purposeOfUseMatched = true;
+                }
+            }
+
             //Add to the list only when all the checks are passed
-            if(toProviderMatched && fromProviderMatched){
+            if(toProviderMatched && fromProviderMatched && purposeOfUseMatched){
                 matchingConsents.add(tempConsent);
             }
         }
@@ -227,7 +240,5 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         log.debug("FHIR Consent(s) bundle successfully filtered based on XacmlRequest object fields");
 
         return matchingConsents;
-
     }
-
 }

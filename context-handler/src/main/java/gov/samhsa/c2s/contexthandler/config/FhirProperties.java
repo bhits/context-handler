@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import javax.validation.constraints.NotNull;
 
 @Configuration
-@ConditionalOnProperty(name = "c2s.context-handler.fhir.enabled", havingValue = "true")
 @ConfigurationProperties(prefix = "c2s.context-handler.fhir")
 @Data
 public class FhirProperties {
