@@ -2,8 +2,6 @@ package gov.samhsa.c2s.contexthandler.service;
 
 import gov.samhsa.c2s.common.log.Logger;
 import gov.samhsa.c2s.common.log.LoggerFactory;
-import gov.samhsa.c2s.contexthandler.service.dto.PatientIdDto;
-import gov.samhsa.c2s.contexthandler.service.dto.SubjectPurposeOfUse;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
@@ -26,9 +24,6 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
     @Autowired
     private PolicyDecisionPointService policyDesicionPointService;
 
-    @Autowired
-    private PolicyProvider policyProvider;
-
     @Override
     public XacmlResponseDto enforcePolicy(XacmlRequestDto xacmlRequest) throws C2SAuditException {
         try {
@@ -48,20 +43,4 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
         }
     }
 
-    @Override
-    public void testFhirConversion() {
-        logger.info("testFhirConversion service invoked.");
-
-        String mrn = "C2S-DEV-3EKFHA";
-        String mrnSystem = "https://bhits.github.io/consent2share/";
-
-        XacmlRequestDto xacmlRequestDto = new XacmlRequestDto();
-        xacmlRequestDto.setPatientId(new PatientIdDto(mrnSystem, mrn));
-        xacmlRequestDto.setPurposeOfUse(SubjectPurposeOfUse.HEALTHCARE_TREATMENT);
-        xacmlRequestDto.setMessageId("testmessageid");
-        xacmlRequestDto.setRecipientNpi("1003220674");
-        xacmlRequestDto.setIntermediaryNpi("1013900992");
-
-        policyProvider.getPolicies(xacmlRequestDto);
-    }
 }

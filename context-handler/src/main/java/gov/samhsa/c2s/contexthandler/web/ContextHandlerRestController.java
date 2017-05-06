@@ -28,10 +28,4 @@ public class ContextHandlerRestController {
         return contextHandlerService.enforcePolicy(xacmlRequest);
     }
 
-    // FIXME: !!!REMOVE THE FOLLOWING METHOD BEFORE COMMITING!!!
-    @RequestMapping(value = "/tempGetMockedFhirConsent", method = RequestMethod.GET)
-    public void tempGetMockedFhirConsent() throws C2SAuditException {
-        contextHandlerService.testFhirConversion();
-    }
-
 }

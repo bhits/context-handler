@@ -8,5 +8,4 @@ public interface ContextHandlerService {
 
     XacmlResponseDto enforcePolicy(XacmlRequestDto xacmlRequest) throws C2SAuditException;
 
-    void testFhirConversion();
 }

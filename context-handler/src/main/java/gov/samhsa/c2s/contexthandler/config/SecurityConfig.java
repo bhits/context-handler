@@ -32,8 +32,6 @@ public class SecurityConfig {
                 http.authorizeRequests()
                         // TODO: May add permission for accessing following resource
                         .antMatchers(HttpMethod.POST, "/policyEnforcement/**").permitAll()
-                        // FIXME: !!!REMOVE THE FOLLOWING LINE BEFORE COMMITING!!!
-                        .antMatchers(HttpMethod.GET, "/tempGetMockedFhirConsent").permitAll()
                         // Security scope for accessing management endpoint
                         .antMatchers(HttpMethod.GET, "/management/**").access(hasScope("contextHandler.management"))
                         .antMatchers(HttpMethod.POST, "/management/**").access(hasScope("contextHandler.management"))

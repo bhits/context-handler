@@ -1,6 +1,5 @@
 package gov.samhsa.c2s.contexthandler.config;
 
-
 import ch.qos.logback.audit.AuditException;
 import gov.samhsa.c2s.common.audit.AuditClient;
 import gov.samhsa.c2s.common.audit.AuditClientImpl;

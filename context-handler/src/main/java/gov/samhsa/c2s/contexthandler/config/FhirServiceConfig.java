@@ -13,8 +13,12 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnBean(FhirProperties.class)
 public class FhirServiceConfig {
 
+    private final FhirProperties fhirProperties;
+
     @Autowired
-    private FhirProperties fhirProperties;
+    public FhirServiceConfig(FhirProperties fhirProperties) {
+        this.fhirProperties = fhirProperties;
+    }
 
     @Bean
     public FhirContext fhirContext() {
