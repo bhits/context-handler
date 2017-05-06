@@ -27,4 +27,5 @@ public class ContextHandlerRestController {
     public XacmlResponseDto access(@Valid @RequestBody XacmlRequestDto xacmlRequest) throws C2SAuditException {
         return contextHandlerService.enforcePolicy(xacmlRequest);
     }
+
 }

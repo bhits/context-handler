@@ -1,11 +1,12 @@
 # Short Description
-This API sends XACML response having authorization decisions with applied policy obligations to PEP.
+This API sends XACML response having authorization decisions with applied policy obligations to PEP. 
 
 # Full Description
 
 # Supported Source Code Tags and Current `Dockerfile` Link
 
-[`1.11.0(latest)`](https://github.com/bhits/context-handler/releases/tag/1.11.0), [`1.8.0`](https://github.com/bhits/context-handler/releases/tag/1.8.0)
+[`2.0.0(latest)`](https://github.com/bhits/context-handler/releases/tag/2.0.0),
+ [`1.11.0`](https://github.com/bhits/context-handler/releases/tag/1.11.0), [`1.8.0`](https://github.com/bhits/context-handler/releases/tag/1.8.0)
 
 [`Current Dockerfile`](https://github.com/bhits/context-handler/blob/master/context-handler/src/main/docker/Dockerfile)
 
@@ -13,19 +14,19 @@ For more information about this image, the source code, and its history, please 
 
 # What is Context Handler?
 
-The Context Handler API is a RESTful web service component of Consent2Share (C2S). It is responsible for sending XACML response context that includes authorization decisions along with applied policy obligations to Policy Enforcement Point (PEP) API components. The Context Handler sends the XACML request context to the Policy Decision Point (PDP). The PDP evaluates the applicable policies from the Patient Consent Management (PCM) against the request context, and returns the response context that includes authorization decisions along with obligations of applied policies to the Context Handler. The Context Handler sends XACML response context back to PEP component. The PDP uses [HERAS-AF](https://bitbucket.org/herasaf/herasaf-xacml-core/overview), an open source XACML 2.0 implementation, for XACML evaluation and uses a PCM database as a local policy repository to retrieve XACML policies that are generated from patients’ consents.
+The Context Handler API is a RESTful web service component of Consent2Share. It is responsible for sending XACML response context that includes authorization decisions along with applied policy obligations to Policy Enforcement Point (PEP) API components. The Context Handler sends the XACML request context to the Policy Decision Point (PDP). The PDP evaluates the applicable policies either from the Patient Consent Management (PCM) or a Fast Healthcare Interoperability Resource (FHIR) server against the request context, and returns the response context that includes authorization decisions along with obligations of applied policies to the Context Handler. The Context Handler sends XACML response context back to the PEP component. The PDP uses [HERAS-AF](https://bitbucket.org/herasaf/herasaf-xacml-core/overview), an open source XACML 2.0 implementation, for XACML evaluation and uses either a PCM database as a local policy repository or a FHIR server to retrieve XACML policies that are generated from patients’ consents.
 
 For more information and related downloads for Consent2Share, please visit [Consent2Share](https://bhits.github.io/consent2share/).
-# How to use this image
+# How to use this Image
 
 
-## Start a Context Handler instance
+## Start a Context Handler Instance
 
-Be sure to familiarize yourself with the repository's [README.md](https://github.com/bhits/context-handler) file before starting the instance.
+Become familiar with the repository's [README.md](https://github.com/bhits/context-handler) file before starting the instance.
 
 `docker run  --name context-handler -d bhits/context-handler:latest <additional program arguments>`
 
-*NOTE: In order for this API to fully function as a microservice in the Consent2Share application, it is required to setup the dependency microservices and the support level infrastructure. Please refer to the Consent2Share Deployment Guide in the corresponding Consent2Share release (see [Consent2Share Releases Page](https://github.com/bhits/consent2share/releases)) for instructions to setup the Consent2Share infrastructure.*
+*NOTE: In order for this API to fully function as a microservice in the Consent2Share application, it is required to set up the dependency microservices and the support level infrastructure. Please refer to the Consent2Share Deployment Guide in the corresponding Consent2Share release (see [Consent2Share Releases Page](https://github.com/bhits/consent2share/releases)) for instructions to set up the Consent2Share infrastructure.*
 
 
 ## Configure
@@ -48,19 +49,19 @@ When you start the Context Handler image, you can edit the configuration of the 
 
 ### JAR_FILE
 
-This environment variable is used to setup which jar file will run. you need mount the jar file to the root of container.
+This environment variable is used to set up which jar file will run. You need mount the jar file to the root of container.
 
 `docker run --name context-handler -e JAR_FILE="context-handler-latest.jar" -v "/path/on/dockerhost/context-handler-latest.jar:/context-handler-latest.jar" -d bhits/context-handler:latest`
 
 ### JAVA_OPTS 
 
-This environment variable is used to setup JVM argument, such as memory configuration.
+This environment variable is used to set up a JVM argument, such as memory configuration.
 
 `docker run --name context-handler -e "JAVA_OPTS=-Xms512m -Xmx700m -Xss1m" -d bhits/context-handler:latest`
 
 ### DEFAULT_PROGRAM_ARGS 
 
-This environment variable is used to setup an application argument. The default value is "--spring.profiles.active=application-default, docker".
+This environment variable is used to set up an application argument. The default value is "--spring.profiles.active=application-default, docker".
 
 `docker run --name context-handler -e DEFAULT_PROGRAM_ARGS="--spring.profiles.active=application-default,ssl,docker" -d bhits/context-handler:latest`
 
