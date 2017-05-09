@@ -20,7 +20,7 @@ To build the project, navigate to the folder that contains `pom.xml` file using 
 + To build a JAR:
     + For Windows, run `mvnw.cmd clean install`
     + For *nix systems, run `mvnw clean install`
-+ To build a Docker Image (this will create an image with `bhits/context-handler:latest` tag):
++ To build a Docker Image (this will create an image with `bhitsdev/context-handler:latest` tag):
     + For Windows, run `mvnw.cmd clean package docker:build`
     + For *nix systems, run `mvnw clean package docker:build`
 
@@ -58,7 +58,7 @@ c2s:
     ...
 ```
 
-3. This API also needs to call the Logback-Audit server, so please follow the [Logback-Audit deployment instruction](https://github.com/bhits/logback-audit) to set it up.
+3. This API also needs to call the Logback-Audit server, so please follow the [Logback-Audit deployment instruction](https://github.com/bhits-dev/logback-audit) to set it up.
 4. After the Logback-Audit server is up, the hostname (currently is localhost) in the [default configuration](context-handler/src/main/resources/application.yml) needs to be replaced with the real server name.
 Logback-Audit configuration section in the configuration file
 
@@ -74,13 +74,13 @@ Logback-Audit configuration section in the configuration file
 
 This is a [Spring Boot](https://projects.spring.io/spring-boot/) project and serves the API via an embedded Tomcat instance. Therefore, there is no need for a separate application server to run this service.
 + Run as a JAR file: `java -jar context-handler-x.x.x-SNAPSHOT.jar <additional program arguments>`
-+ Run as a Docker Container: `docker run -d bhits/context-handler:latest <additional program arguments>`
++ Run as a Docker Container: `docker run -d bhitsdev/context-handler:latest <additional program arguments>`
 
-*NOTE: In order for this API to fully function as a microservice in the Consent2Share application, it is required to set up the dependency microservices and support level infrastructure. Please refer to the [Consent2Share Deployment Guide](https://github.com/bhits/consent2share/releases/download/2.1.0/c2s-deployment-guide.pdf) for instructions to set up the Consent2Share infrastructure.*
+*NOTE: In order for this API to fully function as a microservice in the Consent2Share application, it is required to set up the dependency microservices and support level infrastructure. Please refer to the [Consent2Share Deployment Guide](https://github.com/bhits-dev/consent2share/releases/download/2.1.0/c2s-deployment-guide.pdf) for instructions to set up the Consent2Share infrastructure.*
 
 ## Configure
 
-This API utilizes [`Configuration Server`](https://github.com/bhits/config-server) which is based on [Spring Cloud Config](https://github.com/spring-cloud/spring-cloud-config) to manage externalized configuration, which is stored in a `Configuration Data Git Repository`. We provide a [`Default Configuration Data Git Repository`]( https://github.com/bhits/c2s-config-data).
+This API utilizes [`Configuration Server`](https://github.com/bhits-dev/config-server) which is based on [Spring Cloud Config](https://github.com/spring-cloud/spring-cloud-config) to manage externalized configuration, which is stored in a `Configuration Data Git Repository`. We provide a [`Default Configuration Data Git Repository`]( https://github.com/bhits-dev/c2s-config-data).
 
 This API can run with the default configuration, which is targeted for a local development environment. Default configuration data is from three places: `bootstrap.yml`, `application.yml`, and the data which `Configuration Server` reads from `Configuration Data Git Repository`. Both `bootstrap.yml` and `application.yml` files are located in the `resources` folder of this source code.
   		  
@@ -96,7 +96,7 @@ Also, please refer to [Spring Cloud Config Documentation](https://cloud.spring.i
 
 #### Override a Configuration Using Program Arguments While Running as a Docker Container:
 
-+ `docker run -d bhits/context-handler:latest --server.port=80 `
++ `docker run -d bhitsdev/context-handler:latest --server.port=80 `
 
 + In a `docker-compose.yml`, this can be provided as:
 ```yml
@@ -104,7 +104,7 @@ version: '2'
 services:
 ...
   context-handler.c2s.com:
-    image: "bhits/context-handler:latest"
+    image: "bhitsdev/context-handler:latest"
     command: ["--server.port=80"]
 ...
 ```
@@ -120,14 +120,14 @@ For simplicity in development and testing environments, SSL is **NOT** enabled b
 
 #### Enable SSL While Running as a Docker Container
 
-+ `docker run -d -v "/path/on/dockerhost/ssl_keystore.keystore:/path/to/ssl_keystore.keystore" bhits/context-handler:latest --spring.profiles.active=ssl --server.ssl.key-store=/path/to/ssl_keystore.keystore --server.ssl.key-store-password=strongkeystorepassword`
++ `docker run -d -v "/path/on/dockerhost/ssl_keystore.keystore:/path/to/ssl_keystore.keystore" bhitsdev/context-handler:latest --spring.profiles.active=ssl --server.ssl.key-store=/path/to/ssl_keystore.keystore --server.ssl.key-store-password=strongkeystorepassword`
 + In a `docker-compose.yml`, this can be provided as:
 ```yml
 version: '2'
 services:
 ...
   context-handler.c2s.com:
-    image: "bhits/context-handler:latest"
+    image: "bhitsdev/context-handler:latest"
     command: ["--spring.profiles.active=ssl","--server.ssl.key-store=/path/to/ssl_keystore.keystore", "--server.ssl.key-store-password=strongkeystorepassword"]
     volumes:
       - /path/on/dockerhost/ssl_keystore.keystore:/path/to/ssl_keystore.keystore
@@ -140,7 +140,7 @@ services:
 
 Java has a default CA Certificates Store that allows it to trust well-known certificate authorities. For development and testing purposes, one might want to trust additional self-signed certificates. In order to override the default Java CA Certificates Store in a Docker container, one can mount a custom `cacerts` file over the default one in the Docker image as follows: 
 
-`docker run -d -v "/path/on/dockerhost/to/custom/cacerts:/etc/ssl/certs/java/cacerts" bhits/context-handler:latest`
+`docker run -d -v "/path/on/dockerhost/to/custom/cacerts:/etc/ssl/certs/java/cacerts" bhitsdev/context-handler:latest`
 
 *NOTE: The `cacerts` references refered to in the volume mapping above are files, not directories.*
 
@@ -151,7 +151,7 @@ Java has a default CA Certificates Store that allows it to trust well-known cert
 [//]: # (## Contribute)
 
 ## License
-View [license](https://github.com/bhits/context-handler/blob/master/LICENSE) information for the software contained in this repository.
+View [license](https://github.com/bhits-dev/context-handler/blob/master/LICENSE) information for the software contained in this repository.
 
 ## Contact
 
@@ -159,6 +159,6 @@ If you have any questions, comments, or concerns please see [Consent2Share](http
 
 ## Report Issues
 
-Please use [GitHub Issues](https://github.com/bhits/context-handler/issues) page to report issues.
+Please use [GitHub Issues](https://github.com/bhits-dev/context-handler/issues) page to report issues.
 
 [//]: # (License)
