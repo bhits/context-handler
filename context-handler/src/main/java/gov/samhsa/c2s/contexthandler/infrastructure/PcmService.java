@@ -1,6 +1,7 @@
 package gov.samhsa.c2s.contexthandler.infrastructure;
 
 import gov.samhsa.c2s.common.consentgen.ConsentGenException;
+import gov.samhsa.c2s.contexthandler.service.dto.ConsentXacmlDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Service;
@@ -18,5 +19,5 @@ import javax.validation.Valid;
 public interface PcmService {
 
     @RequestMapping(value = "/consents/export/xacml", method = RequestMethod.POST)
-    public Object exportXACMLConsent(@Valid @RequestBody XacmlRequestDto xacmlRequestDto) ;
+    public ConsentXacmlDto exportXACMLConsent(@Valid @RequestBody XacmlRequestDto xacmlRequestDto) ;
 }

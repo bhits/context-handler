@@ -38,7 +38,7 @@ public class ContextHandlerServiceImpl implements ContextHandlerService {
         } catch (final NoPolicyFoundException e) {
             List<String> pdpObligations = new ArrayList<>();
             final XacmlResponseDto xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations(pdpObligations).build();
-            xacmlResponse.setPdpDecision(e.getClass().getName());
+        //    xacmlResponse.setPdpDecision(e.getClass().getName());
             return xacmlResponse;
         }
     }

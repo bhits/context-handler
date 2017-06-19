@@ -82,9 +82,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     private DocumentXmlConverter documentXmlConverter;
 
     @Override
-    public XacmlResponseDto evaluateRequest(XacmlRequestDto xacmlRequest)
-            throws C2SAuditException, NoPolicyFoundException,
-            PolicyProviderException {
+    public XacmlResponseDto evaluateRequest(XacmlRequestDto xacmlRequest){
         log.info("evaluateRequest invoked");
 
         final RequestType request = requestGenerator.generateRequest(xacmlRequest);
@@ -116,8 +114,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
         return deployedPolicies;
     }
 
-    List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest)
-            throws NoPolicyFoundException, PolicyProviderException {
+    List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) {
 
         return policyProvider.getPolicies(xacmlRequest);
     }
@@ -165,8 +162,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
 
 
     void deployPolicies(PDP pdp, List<Evaluatable> policies,
-                        XacmlRequestDto xacmlRequest, boolean isAudited)
-            throws C2SAuditException {
+                        XacmlRequestDto xacmlRequest, boolean isAudited) {
         try {
             final PolicyRetrievalPoint repo = pdp.getPolicyRepository();
             final UnorderedPolicyRepository repository = (UnorderedPolicyRepository) repo;

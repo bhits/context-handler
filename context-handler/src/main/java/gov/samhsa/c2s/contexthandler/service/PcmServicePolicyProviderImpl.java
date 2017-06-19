@@ -1,11 +1,16 @@
 package gov.samhsa.c2s.contexthandler.service;
 
+import com.netflix.hystrix.exception.HystrixRuntimeException;
+import feign.FeignException;
 import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
 import gov.samhsa.c2s.contexthandler.infrastructure.PcmService;
+import gov.samhsa.c2s.contexthandler.service.dto.ConsentXacmlDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
+import gov.samhsa.c2s.contexthandler.service.exception.NoConsentFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
+import gov.samhsa.c2s.contexthandler.service.exception.PcmClientInterfaceException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,8 +42,7 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
     }
 
     @Override
-    public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException,
-            PolicyProviderException {
+    public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest)  {
 
         List<PolicyDto> policyDtoList = convertConsentDtoListToXacmlPolicyDtoList(xacmlRequest);
 
@@ -54,20 +57,47 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
         return Arrays.asList(policySet);
     }
 
-    private List<PolicyDto> convertConsentDtoListToXacmlPolicyDtoList(XacmlRequestDto xacmlRequest) {
+    private List<PolicyDto> convertConsentDtoListToXacmlPolicyDtoList(XacmlRequestDto xacmlRequest)  {
         List<PolicyDto> policyDtoList = new ArrayList<>();
+        ConsentXacmlDto consentXacmlDto;
 
-        LinkedHashMap<String, String> obj = (LinkedHashMap<String, String>) pcmService.exportXACMLConsent(xacmlRequest);
-        if (obj != null) {
+        try {
+
+            consentXacmlDto = pcmService.exportXACMLConsent(xacmlRequest);
             PolicyDto policyDto = new PolicyDto();
-            policyDto.setId(obj.get("consentRefId"));
-            policyDto.setPolicy(obj.get("consentXacml").getBytes(StandardCharsets.UTF_8));
+            policyDto.setId(consentXacmlDto.getConsentRefId());
+            policyDto.setPolicy(consentXacmlDto.getConsentXacml().getBytes(StandardCharsets.UTF_8));
 
             policyDtoList.add(policyDto);
-        }
-        log.info("Conversion of ConsentDto list to XACML PolicyDto list complete.");
 
-        return policyDtoList;
+            log.info("Conversion of ConsentDto list to XACML PolicyDto list complete.");
+
+            return policyDtoList;
+        } catch(HystrixRuntimeException hystrixErr){
+            Throwable causedBy = hystrixErr.getCause();
+
+            if (!(causedBy instanceof FeignException)) {
+                log.error("Unexpected instance of HystrixRuntimeException has occurred", hystrixErr);
+                throw new PcmClientInterfaceException("An unknown error occurred while attempting to communicate with" +
+                        " DSS service");
+            }
+
+            int causedByStatus = ((FeignException) causedBy).status();
+
+            switch (causedByStatus) {
+                case 404:
+                    log.error("PCM client returned a 404 - Consent Not Found", causedBy);
+                    throw new NoPolicyFoundException("Consent not found with given xcamlRequest" + xacmlRequest);
+                default:
+                    log.error("PCM client returned an unexpected instance of FeignException", causedBy);
+                    throw new PcmClientInterfaceException("An unknown error occurred while attempting to communicate " +
+                            "with" +
+                            " PCM service");
+            }
+
+
+        }
+
     }
 
 
