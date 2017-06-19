@@ -15,7 +15,7 @@ spring:
     password: admin
 c2s:
   context-handler:
-    policy-provider: FhirServerPolicyProviderImpl
+    policy-provider: PcmServicePolicyProviderImpl
     pid:
       type: ISO
     polrep:
