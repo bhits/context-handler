@@ -1,7 +1,7 @@
 package gov.samhsa.c2s.contexthandler.service.exception;
 
 
-public class C2SAuditException extends Exception {
+public class C2SAuditException extends RuntimeException {
 
     public C2SAuditException() {
         super();

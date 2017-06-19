@@ -11,7 +11,7 @@ import gov.samhsa.c2s.contexthandler.service.dto.ConsentListAndPatientDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
-import gov.samhsa.c2s.contexthandler.service.exception.ConsentNotFound;
+import gov.samhsa.c2s.contexthandler.service.exception.NoConsentFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.FhirConsentInvalidException;
 import gov.samhsa.c2s.contexthandler.service.exception.MultiplePatientsFound;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
@@ -153,7 +153,7 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
         if(consentSearchResponse == null || consentSearchResponse.getEntry().size() < 1){
             log.debug("No active consents matching query parameters were found in FHIR server during search in 'searchForFhirPatientAndFhirConsent' method");
-            throw new ConsentNotFound("No active consent found for date:" + dateToday + " and for the given MRN:" + patientMrn);
+            throw new NoConsentFoundException("No active consent found for date:" + dateToday + " and for the given MRN:" + patientMrn);
         }
 
         log.debug("FHIR Consent(s) bundle retrieved from FHIR server successfully");
