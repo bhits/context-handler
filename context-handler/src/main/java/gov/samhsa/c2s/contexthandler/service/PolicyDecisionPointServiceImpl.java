@@ -7,8 +7,6 @@ import gov.samhsa.c2s.common.document.accessor.DocumentAccessor;
 import gov.samhsa.c2s.common.document.accessor.DocumentAccessorException;
 import gov.samhsa.c2s.common.document.converter.DocumentXmlConverter;
 import gov.samhsa.c2s.common.document.converter.DocumentXmlConverterException;
-import gov.samhsa.c2s.common.log.Logger;
-import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerAuditVerb;
 import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerPredicateKey;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
@@ -17,6 +15,7 @@ import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import gov.samhsa.c2s.contexthandler.service.util.RequestGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.herasaf.xacml.core.WritingException;
 import org.herasaf.xacml.core.api.PDP;
 import org.herasaf.xacml.core.api.PolicyRepository;
@@ -52,9 +51,8 @@ import java.util.Set;
  * ss PolicyDecisionPointServiceImpl.
  */
 @Service
+@Slf4j
 public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointService {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * The policy provider.
@@ -69,7 +67,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     private RequestGenerator requestGenerator;
 
     @Autowired
-    private Optional<AuditClient>  auditClient ;
+    private Optional<AuditClient> auditClient;
 
     /**
      * The document accessor.
@@ -87,10 +85,10 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     public XacmlResponseDto evaluateRequest(XacmlRequestDto xacmlRequest)
             throws C2SAuditException, NoPolicyFoundException,
             PolicyProviderException {
-        logger.info("evaluateRequest invoked");
+        log.info("evaluateRequest invoked");
 
         final RequestType request = requestGenerator.generateRequest(xacmlRequest);
-        logger.debug(() -> createPDPRequestLogMessage(request));
+        log.debug(createPDPRequestLogMessage(request));
 
         return managePoliciesAndEvaluateRequest(request, xacmlRequest);
     }
@@ -135,11 +133,12 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     private XacmlResponseDto evaluateRequest(PDP simplePDP, RequestType request) {
         //final XacmlResponseDto xacmlResponse = new XacmlResponseDto();
         List<String> pdpObligations = new ArrayList<>();
-        final XacmlResponseDto xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations(pdpObligations).build();
+        final XacmlResponseDto xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations
+                (pdpObligations).build();
 
         final ResponseType response = simplePDP.evaluate(request);
         for (final ResultType r : response.getResults()) {
-            logger.debug("PDP Decision: " + r.getDecision().toString());
+            log.debug("PDP Decision: " + r.getDecision().toString());
             xacmlResponse.setPdpDecision(r.getDecision().toString());
 
             if (r.getObligations() != null) {
@@ -149,7 +148,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
                     for (final AttributeAssignmentType a : o
                             .getAttributeAssignments()) {
                         for (final Object c : a.getContent()) {
-                            logger.debug("With Obligation: " + c);
+                            log.debug("With Obligation: " + c);
                             obligations.add(c.toString());
                         }
                     }
@@ -158,9 +157,9 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
             }
         }
 
-        logger.debug("xacmlResponse.pdpDecision: "
+        log.debug("xacmlResponse.pdpDecision: "
                 + xacmlResponse.getPdpDecision());
-        logger.debug("xacmlResponse is ready!");
+        log.debug("xacmlResponse is ready!");
         return xacmlResponse;
     }
 
@@ -179,7 +178,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
             }
         } catch (AuditException | WritingException | IOException
                 | DocumentAccessorException | DocumentXmlConverterException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             undeployAllPolicies(pdp);
             throw new C2SAuditException(e.getMessage(), e);
         }
@@ -203,7 +202,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
 
         Map<PredicateKey, String> predicateMap = null;
 
-        if(auditClient.isPresent()){
+        if (auditClient.isPresent()) {
             predicateMap = auditClient.get()
                     .createPredicateMap();
             final String policyString = writer.toString();
@@ -233,7 +232,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
             RequestMarshaller.marshal(request, baos);
             return new StringBuilder().append(logMsgPrefix).append(new String(baos.toByteArray())).toString();
         } catch (Exception e) {
-            logger.error(() -> new StringBuilder().append(errMsg).append(" : ").append(e.getMessage()).toString());
+            log.error(new StringBuilder().append(errMsg).append(" : ").append(e.getMessage()).toString());
         }
         return logMsgPrefix + errMsg;
     }
