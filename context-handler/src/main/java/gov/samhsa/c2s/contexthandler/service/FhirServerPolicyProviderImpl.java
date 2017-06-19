@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@ConditionalOnProperty(name = "c2s.context-handler.fhir.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "c2s.context-handler.policy-provider", havingValue = "FhirServerPolicyProviderImpl")
 public class FhirServerPolicyProviderImpl implements PolicyProvider {
     private final ConsentBuilder consentBuilder;
 

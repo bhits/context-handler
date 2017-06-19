@@ -25,12 +25,12 @@ import static gov.samhsa.c2s.contexthandler.service.util.AssertionUtils.assertPo
 import static gov.samhsa.c2s.contexthandler.service.util.AssertionUtils.assertPolicyId;
 
 @Service
-@ConditionalOnProperty(name = "c2s.context-handler.fhir.enabled", havingValue = "false")
+@ConditionalOnProperty(name = "c2s.context-handler.policy-provider", havingValue = "JdbcPolicyProviderImpl")
 public class JdbcPolicyProviderImpl implements PolicyProvider {
 
     public static final String SQL_GET_XACML_CONSENT_WC = "select consent.consent_reference_id, consent.xacml_ccd  "
             + " from consent "
-            + " where consent.consent_reference_id like ?"
+            + " where consent.patient_id like ?"
             + " and consent.status = 'CONSENT_SIGNED'"
             + " and now() between consent.start_date and consent.end_date";
 

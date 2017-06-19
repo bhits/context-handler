@@ -15,6 +15,7 @@ spring:
     password: admin
 c2s:
   context-handler:
+    policy-provider: PcmServicePolicyProviderImpl
     pid:
       type: ISO
     polrep:
@@ -37,7 +38,7 @@ c2s:
       host: localhost
       port: 9630
     fhir:
-      enabled: true
+      enabled: false
       # configure fhir server base url
       serverUrl: http://bhitsdevhie01/hapi-fhir-jpaserver/baseStu3
       clientSocketTimeoutInMs: 768000
