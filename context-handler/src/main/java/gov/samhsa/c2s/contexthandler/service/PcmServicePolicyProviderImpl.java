@@ -1,10 +1,7 @@
 package gov.samhsa.c2s.contexthandler.service;
 
 import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
-import gov.samhsa.c2s.common.consentgen.ConsentDto;
-import gov.samhsa.c2s.common.consentgen.ConsentGenException;
 import gov.samhsa.c2s.contexthandler.infrastructure.PcmService;
-import gov.samhsa.c2s.contexthandler.service.dto.ConsentXacmlDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
@@ -20,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,20 +57,15 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
     private List<PolicyDto> convertConsentDtoListToXacmlPolicyDtoList(XacmlRequestDto xacmlRequest) {
         List<PolicyDto> policyDtoList = new ArrayList<>();
 
-        try {
-            ConsentXacmlDto consentXacmlDto = (ConsentXacmlDto) pcmService.getXACMLConsent(xacmlRequest);
+        LinkedHashMap<String, String> obj = (LinkedHashMap<String, String>) pcmService.exportXACMLConsent(xacmlRequest);
+        if (obj != null) {
             PolicyDto policyDto = new PolicyDto();
-            policyDto.setId(consentXacmlDto.getConsentRefId());
-            policyDto.setPolicy(consentXacmlDto.getConsentXacml().getBytes(StandardCharsets.UTF_8));
+            policyDto.setId(obj.get("consentRefId"));
+            policyDto.setPolicy(obj.get("consentXacml").getBytes(StandardCharsets.UTF_8));
 
             policyDtoList.add(policyDto);
-
-            log.info("Conversion of ConsentDto list to XACML PolicyDto list complete.");
-        } catch (ConsentGenException e) {
-            log.error("ConsentGenException occurred while trying to convert ConsentDto object(s) to XACML PolicyDto " +
-                    "object(s)", e);
-            throw new PolicyProviderException("Unable to process FHIR consent(s)", e);
         }
+        log.info("Conversion of ConsentDto list to XACML PolicyDto list complete.");
 
         return policyDtoList;
     }
