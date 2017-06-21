@@ -52,7 +52,7 @@ c2s:
 	        oid: urn:oid:2.16.840.1.113883.1.11.20448
 	        label: PurposeOfUse
 	      mrn:
-	        system: https://bhits.github.io/consent2share/
+	        system: https://bhits-dev.github.io/consent2share/
 	        oid: urn:oid:1.3.6.1.4.1.21367.13.20.200
 	        label: MRN
     ...
@@ -155,7 +155,7 @@ View [license](https://github.com/bhits-dev/context-handler/blob/master/LICENSE)
 
 ## Contact
 
-If you have any questions, comments, or concerns please see [Consent2Share](https://bhits.github.io/consent2share/) project site.
+If you have any questions, comments, or concerns please see [Consent2Share](https://bhits-dev.github.io/consent2share/) project site.
 
 ## Report Issues
 
