@@ -42,7 +42,7 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
     }
 
     @Override
-    public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest)  {
+    public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) {
 
         List<PolicyDto> policyDtoList = convertConsentDtoListToXacmlPolicyDtoList(xacmlRequest);
 
@@ -57,7 +57,7 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
         return Arrays.asList(policySet);
     }
 
-    private List<PolicyDto> convertConsentDtoListToXacmlPolicyDtoList(XacmlRequestDto xacmlRequest)  {
+    private List<PolicyDto> convertConsentDtoListToXacmlPolicyDtoList(XacmlRequestDto xacmlRequest) {
         List<PolicyDto> policyDtoList = new ArrayList<>();
         ConsentXacmlDto consentXacmlDto;
 
@@ -73,32 +73,20 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
             log.info("Conversion of ConsentDto list to XACML PolicyDto list complete.");
 
             return policyDtoList;
-        } catch(HystrixRuntimeException hystrixErr){
-            Throwable causedBy = hystrixErr.getCause();
-
-            if (!(causedBy instanceof FeignException)) {
-                log.error("Unexpected instance of HystrixRuntimeException has occurred", hystrixErr);
-                throw new PcmClientInterfaceException("An unknown error occurred while attempting to communicate with" +
-                        " DSS service");
-            }
-
-            int causedByStatus = ((FeignException) causedBy).status();
+        } catch (FeignException fe) {
+            int causedByStatus = fe.status();
 
             switch (causedByStatus) {
                 case 404:
-                    log.error("PCM client returned a 404 - Consent Not Found", causedBy);
-                    throw new NoPolicyFoundException("Consent not found with given xcamlRequest" + xacmlRequest);
+                    log.error("PCM client returned a 404 - Consent Not Found", fe);
+                    throw new NoPolicyFoundException("Consent not found with given XACML Request" + xacmlRequest);
                 default:
-                    log.error("PCM client returned an unexpected instance of FeignException", causedBy);
+                    log.error("PCM client returned an unexpected instance of FeignException", fe);
                     throw new PcmClientInterfaceException("An unknown error occurred while attempting to communicate " +
                             "with" +
                             " PCM service");
             }
-
-
         }
 
     }
-
-
 }
