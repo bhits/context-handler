@@ -341,6 +341,7 @@
                                         <exclude>org.springframework.data:spring-data-rest-webmvc:(,2.5.7.RELEASE]</exclude>
                                         <exclude>org.springframework:spring-web:jar:(,4.3.6.RELEASE]</exclude>
                                         <exclude>org.springframework:spring-webmvc:(,4.3.6.RELEASE]</exclude>
+                                        <exclude>com.itextpdf:itextpdf:*</exclude>
 
                                         <!-- TODO: commented out exclusions are either managed by Spring or already the latest version unless it is specified -->
                                         <!--<exclude>ch.qos.logback:logback-classic:(,1.1.11]</exclude>-->
