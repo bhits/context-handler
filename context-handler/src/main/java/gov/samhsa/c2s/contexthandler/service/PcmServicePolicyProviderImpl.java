@@ -1,17 +1,13 @@
 package gov.samhsa.c2s.contexthandler.service;
 
-import com.netflix.hystrix.exception.HystrixRuntimeException;
 import feign.FeignException;
-import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
 import gov.samhsa.c2s.contexthandler.infrastructure.PcmService;
 import gov.samhsa.c2s.contexthandler.service.dto.ConsentXacmlDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
-import gov.samhsa.c2s.contexthandler.service.exception.NoConsentFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PcmClientInterfaceException;
-import gov.samhsa.c2s.contexthandler.service.exception.PolicyProviderException;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
 import lombok.extern.slf4j.Slf4j;
 import org.herasaf.xacml.core.policy.Evaluatable;
@@ -19,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,14 +24,12 @@ import java.util.UUID;
 @Slf4j
 @ConditionalOnProperty(name = "c2s.context-handler.policy-provider", havingValue = "PcmServicePolicyProviderImpl")
 public class PcmServicePolicyProviderImpl implements PolicyProvider {
-    private final ConsentBuilder consentBuilder;
     private final PcmService pcmService;
     private final XacmlPolicySetService xacmlPolicySetService;
 
     @Autowired
-    public PcmServicePolicyProviderImpl(ConsentBuilder consentBuilder, PcmService pcmService, XacmlPolicySetService
+    public PcmServicePolicyProviderImpl(PcmService pcmService, XacmlPolicySetService
             xacmlPolicySetService) {
-        this.consentBuilder = consentBuilder;
         this.pcmService = pcmService;
         this.xacmlPolicySetService = xacmlPolicySetService;
     }
@@ -66,7 +59,7 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
             consentXacmlDto = pcmService.exportXACMLConsent(xacmlRequest);
             PolicyDto policyDto = new PolicyDto();
             policyDto.setId(consentXacmlDto.getConsentRefId());
-            policyDto.setPolicy(consentXacmlDto.getConsentXacml().getBytes(StandardCharsets.UTF_8));
+            policyDto.setPolicy(consentXacmlDto.getConsentXacml());
 
             policyDtoList.add(policyDto);
 
@@ -87,6 +80,5 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
                             " PCM service");
             }
         }
-
     }
 }
