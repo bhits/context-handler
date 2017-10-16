@@ -15,8 +15,8 @@ ribbon:
   ReadTimeout: 50000
 c2s:
   context-handler:
-  # use TestPolicyProvider for testing
-    policy-provider: TestPolicyProvider
+  # use MockPolicyProvider for testing
+    policy-provider: MockPolicyProvider
     pid:
       type: ISO
     polrep:
