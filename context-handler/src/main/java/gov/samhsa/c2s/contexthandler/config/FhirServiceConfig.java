@@ -2,7 +2,7 @@ package gov.samhsa.c2s.contexthandler.config;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.rest.client.IGenericClient;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.validation.FhirValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

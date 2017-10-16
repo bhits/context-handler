@@ -1,6 +1,6 @@
 package gov.samhsa.c2s.contexthandler.service;
 
-import ca.uhn.fhir.rest.client.IGenericClient;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.gclient.DateClientParam;
 import ca.uhn.fhir.rest.gclient.ReferenceClientParam;
 import ca.uhn.fhir.rest.gclient.TokenClientParam;
@@ -180,13 +180,13 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
             //Check "To" Provider
             List<DomainResource> fhirToProviderResourceList = new ArrayList<>();
 
-            if(tempConsent.hasRecipient()){
-                List<Reference> fhirToProviderReferenceList = tempConsent.getRecipient();
+            if(tempConsent.hasActor()){
+                List<Consent.ConsentActorComponent> fhirToProviderReferenceList = tempConsent.getActor();
                 fhirToProviderReferenceList.forEach(fhirToProviderReference ->
-                        fhirToProviderResourceList.add((DomainResource) fhirToProviderReference.getResource()));
+                        fhirToProviderResourceList.add((DomainResource) fhirToProviderReference.getReference().getResource()));
             }else{
-                log.error("One or more FHIR Consents in bundle passed to 'filterMatchingConsentsFromBundle' does not have any recipient(s) specified");
-                throw new FhirConsentInvalidException("The FHIR consent does not have any recipient(s) specified");
+                log.error("One or more FHIR Consents in bundle passed to 'filterMatchingConsentsFromBundle' does not have any actor(s) specified");
+                throw new FhirConsentInvalidException("The FHIR consent does not have any actor(s) specified");
             }
 
             for (DomainResource fhirToProviderResource : fhirToProviderResourceList) {
@@ -195,8 +195,8 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                 try {
                     fhirFromProviderNpi = consentBuilder.extractNpiFromFhirProviderResource(fhirToProviderResource);
                 } catch (ConsentGenException e) {
-                    log.error("ConsentGenException occurred while attempting to extract NPI from recipient FHIR provider resource in 'filterMatchingConsentsFromBundle' method", e);
-                    throw new FhirConsentInvalidException("Error extracting NPI from recipient Provider resource", e);
+                    log.error("ConsentGenException occurred while attempting to extract NPI from recipient(actor) FHIR provider resource in 'filterMatchingConsentsFromBundle' method", e);
+                    throw new FhirConsentInvalidException("Error extracting NPI from recipient(actor) Provider resource", e);
                 }
 
                 if(fhirFromProviderNpi.equalsIgnoreCase(xacmlRequest.getRecipientNpi())){
@@ -207,17 +207,29 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
             }
 
             //Check "From" Provider
-            DomainResource fhirFromProviderResource = (DomainResource) tempConsent.getOrganization().getResource();
-            String fhirFromProviderNpi;
-            try {
-                fhirFromProviderNpi = consentBuilder.extractNpiFromFhirProviderResource(fhirFromProviderResource);
-            } catch (ConsentGenException e) {
-                log.error("ConsentGenException occurred while attempting to extract NPI from intermediary FHIR provider resource in 'filterMatchingConsentsFromBundle' method", e);
-                throw new FhirConsentInvalidException("Error extracting NPI from intermediary Provider resource", e);
+            List<DomainResource> fhirFromProviderResourceList = new ArrayList<>();
+            if(tempConsent.hasOrganization()){
+                List<Reference> fhirFromProviderList = tempConsent.getOrganization();
+                fhirFromProviderList.forEach(fhirFromProvider ->
+                        fhirFromProviderResourceList.add((DomainResource)fhirFromProvider.getResource()));
+            }else{
+                log.error("One or more FHIR Consents in bundle passed to 'filterMatchingConsentsFromBundle' does not have any organization(s) specified");
+                throw new FhirConsentInvalidException("The FHIR consent does not have any organization(s) specified");
             }
 
-            if(fhirFromProviderNpi.equalsIgnoreCase(xacmlRequest.getIntermediaryNpi())){
-                fromProviderMatched = true;
+            for(DomainResource fhirFromProviderResource : fhirFromProviderResourceList){
+                String fhirFromProviderNpi;
+                try{
+                    fhirFromProviderNpi =  consentBuilder.extractNpiFromFhirProviderResource(fhirFromProviderResource);
+                }
+                catch (ConsentGenException e) {
+                    log.error("ConsentGenException occurred while attempting to extract NPI from organization(From) FHIR provider resource in 'filterMatchingConsentsFromBundle' method", e);
+                    throw new FhirConsentInvalidException("Error extracting NPI from organization(From) Provider resource", e);
+                }
+
+                if(fhirFromProviderNpi.equalsIgnoreCase(xacmlRequest.getIntermediaryNpi())){
+                    fromProviderMatched = true;
+                }
             }
 
             //Check purpose of use
