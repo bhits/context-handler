@@ -10,9 +10,6 @@ logging:
   file: ${java.io.tmpdir}/java/C2S_LOGS/context-handler/context-handler.log
 info:
   component: Context Handler API
-hystrix.command.default.execution.timeout.enabled: false
-ribbon:
-  ReadTimeout: 50000
 c2s:
   context-handler:
   # use MockPolicyProvider for testing

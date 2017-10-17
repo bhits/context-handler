@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
-
 @Data
 @Builder
 @AllArgsConstructor(staticName = "of")
@@ -18,7 +16,6 @@ public class ConsentXacmlDto {
     @NotBlank
     private String consentRefId;
     @NotEmpty
-    @NotNull
     private byte[] consentXacml;
     @NotBlank
     private String consentXacmlEncoding;
