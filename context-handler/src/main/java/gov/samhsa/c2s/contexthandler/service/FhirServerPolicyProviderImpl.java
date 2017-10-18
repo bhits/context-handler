@@ -183,13 +183,11 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
             List<DomainResource> fhirToProviderResourceList = new ArrayList<>();
 
             if (tempConsent.hasActor()) {
-                List<Consent.ConsentActorComponent> fhirToProviderActorList = new ArrayList<>();
-
-                for (Consent.ConsentActorComponent actor : tempConsent.getActor()) {
-                    if (actor.hasRole()) {
-                        actor.getRole().getCoding().stream().filter(coding -> coding.getCode().equalsIgnoreCase(V3ParticipationType.IRCP.toCode())).map(coding -> actor).forEach(fhirToProviderActorList::add);
-                    }
-                }
+                List<Consent.ConsentActorComponent> fhirToProviderActorList = tempConsent.getActor().stream()
+                        .filter(Consent.ConsentActorComponent::hasRole)
+                        .filter(actor -> actor.getRole().getCoding().stream()
+                                .anyMatch(coding -> coding.getCode().equalsIgnoreCase(V3ParticipationType.IRCP.toCode())))
+                        .collect(Collectors.toList());
 
                 fhirToProviderActorList.forEach(fhirToProviderReference ->
                         fhirToProviderResourceList.add((DomainResource) fhirToProviderReference.getReference().getResource()));
@@ -222,13 +220,12 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
             //Check "From" Provider
             List<DomainResource> fhirFromProviderResourceList = new ArrayList<>();
 
-            List<Consent.ConsentActorComponent> fhirFromProviderActorList = new ArrayList<>();
+            List<Consent.ConsentActorComponent> fhirFromProviderActorList = tempConsent.getActor().stream()
+                    .filter(Consent.ConsentActorComponent::hasRole)
+                    .filter(actor -> actor.getRole().getCoding().stream()
+                            .anyMatch(coding -> coding.getCode().equalsIgnoreCase(V3ParticipationType.INF.toCode())))
+                    .collect(Collectors.toList());
 
-            for (Consent.ConsentActorComponent actor : tempConsent.getActor()) {
-                if (actor.hasRole()) {
-                    actor.getRole().getCoding().stream().filter(coding -> coding.getCode().equalsIgnoreCase(V3ParticipationType.INF.toCode())).map(coding -> actor).forEach(fhirFromProviderActorList::add);
-                }
-            }
             fhirFromProviderActorList.forEach(fhirFromProvider ->
                     fhirFromProviderResourceList.add((DomainResource) fhirFromProvider.getReference().getResource()));
 
