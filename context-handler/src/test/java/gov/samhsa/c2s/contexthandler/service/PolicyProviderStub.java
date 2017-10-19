@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-@ConditionalOnProperty(name = "c2s.context-handler.policy-provider", havingValue = "MockPolicyProvider")
-public class MockPolicyProvider implements PolicyProvider {
+@ConditionalOnProperty(name = "c2s.context-handler.policy-provider", havingValue = "PolicyProviderStub")
+public class PolicyProviderStub implements PolicyProvider {
     public static final String PATIENT_ID_ROOT = "PATIENT_ID_ROOT";
     public static final String PATIENT_ID_EXTENSION = "PATIENT_ID_EXTENSION";
     public static final String UNHANDLED_ERROR_PATIENT_ID_ROOT = "UNHANDLED_ERROR_PATIENT_ID_ROOT";

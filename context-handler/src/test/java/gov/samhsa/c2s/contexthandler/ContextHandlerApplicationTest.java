@@ -1,7 +1,7 @@
 package gov.samhsa.c2s.contexthandler;
 
 import gov.samhsa.c2s.contexthandler.service.ContextHandlerService;
-import gov.samhsa.c2s.contexthandler.service.MockPolicyProvider;
+import gov.samhsa.c2s.contexthandler.service.PolicyProviderStub;
 import gov.samhsa.c2s.contexthandler.service.PolicyProvider;
 import gov.samhsa.c2s.contexthandler.service.dto.PatientIdDto;
 import gov.samhsa.c2s.contexthandler.service.dto.SubjectPurposeOfUse;
@@ -21,10 +21,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static gov.samhsa.c2s.contexthandler.service.MockPolicyProvider.PATIENT_ID_EXTENSION;
-import static gov.samhsa.c2s.contexthandler.service.MockPolicyProvider.PATIENT_ID_ROOT;
-import static gov.samhsa.c2s.contexthandler.service.MockPolicyProvider.UNHANDLED_ERROR_PATIENT_ID_EXTENSION;
-import static gov.samhsa.c2s.contexthandler.service.MockPolicyProvider.UNHANDLED_ERROR_PATIENT_ID_ROOT;
+import static gov.samhsa.c2s.contexthandler.service.PolicyProviderStub.PATIENT_ID_EXTENSION;
+import static gov.samhsa.c2s.contexthandler.service.PolicyProviderStub.PATIENT_ID_ROOT;
+import static gov.samhsa.c2s.contexthandler.service.PolicyProviderStub.UNHANDLED_ERROR_PATIENT_ID_EXTENSION;
+import static gov.samhsa.c2s.contexthandler.service.PolicyProviderStub.UNHANDLED_ERROR_PATIENT_ID_ROOT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -59,7 +59,7 @@ public class ContextHandlerApplicationTest {
 
     @Test
     public void testInstanceOfPolicyProvider() {
-        assertEquals("PolicyProvider implementation must be: " + MockPolicyProvider.class, MockPolicyProvider.class, policyProvider.getClass());
+        assertEquals("PolicyProvider implementation must be: " + PolicyProviderStub.class, PolicyProviderStub.class, policyProvider.getClass());
     }
 
     @Test
