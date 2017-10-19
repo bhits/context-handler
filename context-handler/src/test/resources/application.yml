@@ -12,8 +12,8 @@ info:
   component: Context Handler API
 c2s:
   context-handler:
-  # use MockPolicyProvider for testing
-    policy-provider: MockPolicyProvider
+  # use PolicyProviderStub for testing
+    policy-provider: PolicyProviderStub
     pid:
       type: ISO
     polrep:
