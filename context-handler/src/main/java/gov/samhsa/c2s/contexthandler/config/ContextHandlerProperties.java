@@ -39,22 +39,12 @@ public class ContextHandlerProperties {
         @Valid
         private Resource resource;
 
-        @NotNull
-        @Valid
-        private Action action;
-
         @Data
         public static class Resource {
             @NotEmpty
             private String typeCode;
             @NotEmpty
             private String status;
-        }
-
-        @Data
-        public static class Action {
-            @NotEmpty
-            private String actionId;
         }
     }
 }

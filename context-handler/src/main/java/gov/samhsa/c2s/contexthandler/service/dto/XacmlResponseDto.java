@@ -15,5 +15,5 @@ public class XacmlResponseDto {
     private String pdpDecision;
 
     @NotNull
-    private List<String> pdpObligations = new ArrayList<>();
+    private List<ObligationDto> pdpObligations = new ArrayList<>();
 }

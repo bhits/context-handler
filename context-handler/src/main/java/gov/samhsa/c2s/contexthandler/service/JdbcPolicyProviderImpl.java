@@ -60,16 +60,15 @@ public class JdbcPolicyProviderImpl implements PolicyProvider {
 
     }
 
-
     @Override
     public List<Evaluatable> getPolicies(XacmlRequestDto xacmlRequest) throws NoPolicyFoundException, PolicyProviderException {
 
-        final String mrn = xacmlRequest.getPatientId().getExtension();
-        final String mrnDomain = xacmlRequest.getPatientId().getRoot();
+        final String mrn = xacmlRequest.getPatientIdentifier().getValue();
+        final String mrnDomain = xacmlRequest.getPatientIdentifier().getOid();
 
         final String policyId = toPolicyId(mrn, mrnDomain,
-                xacmlRequest.getRecipientNpi(),
-                xacmlRequest.getIntermediaryNpi());
+                xacmlRequest.getRecipientIdentifier().getValue(),
+                xacmlRequest.getIntermediaryIdentifier().getValue());
 
         // Get all policies from db
         final PolicyContainerDto policies = getPolicies(policyId);

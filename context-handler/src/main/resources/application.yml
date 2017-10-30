@@ -31,8 +31,6 @@ c2s:
       resource:
         typeCode: 34133-9
         status: urn:oasis:names:tc:ebxml-regrep:StatusType:Approved
-      action:
-        actionId: pepaccess
     audit-client:
       enabled: false
       host: localhost

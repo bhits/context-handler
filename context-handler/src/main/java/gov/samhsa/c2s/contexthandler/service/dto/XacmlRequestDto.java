@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -20,23 +21,29 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "XacmlRequest")
 public class XacmlRequestDto {
 
-    @XmlElement(name = "RecipientNpi")
-    @NotBlank
-    private String recipientNpi;
+    @XmlElement(name = "RecipientIdentifier")
+    @NotNull
+    @Valid
+    private IdentifierDto recipientIdentifier;
 
-    @XmlElement(name = "IntermediaryNpi")
-    @NotBlank
-    private String intermediaryNpi;
+    @XmlElement(name = "IntermediaryIdentifier")
+    @NotNull
+    @Valid
+    private IdentifierDto intermediaryIdentifier;
 
     @XmlElement(name = "PurposeOfUse")
     @NotNull
     private SubjectPurposeOfUse purposeOfUse;
 
-    @XmlElement(name = "PatientId")
+    @XmlElement(name = "PatientIdentifier")
     @NotNull
-    private PatientIdDto patientId;
+    @Valid
+    private IdentifierDto patientIdentifier;
+
+    @XmlElement(name = "ActionId")
+    @NotBlank
+    private String actionId;
 
     @XmlElement(name = "MessageId")
     private String messageId;
-
 }

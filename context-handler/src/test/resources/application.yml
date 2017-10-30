@@ -8,6 +8,9 @@ server:
 # use java temp directory for log file for testing
 logging:
   file: ${java.io.tmpdir}/java/C2S_LOGS/context-handler/context-handler.log
+  level:
+    gov.samhsa.c2s: debug
+    org.herasaf.xacml: debug
 info:
   component: Context Handler API
 c2s:
