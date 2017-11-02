@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -59,6 +60,9 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
         Patient fhirPatient = consentListAndPatientDto.getPatient();
 
         List<Consent> fhirConsentList = consentListAndPatientDto.getMatchingConsents();
+        if (Objects.isNull(fhirConsentList) || fhirConsentList.isEmpty()) {
+            throw new NoPolicyFoundException("Consent not found with given XACML Request" + xacmlRequest);
+        }
 
         List<ConsentDto> consentDtoList = convertFhirConsentListToConsentDtoList(fhirConsentList, fhirPatient);
         List<PolicyDto> policyDtoList = convertConsentDtoListToXacmlPolicyDtoList(consentDtoList);
