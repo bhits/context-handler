@@ -7,6 +7,7 @@ import ca.uhn.fhir.rest.gclient.TokenClientParam;
 import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
 import gov.samhsa.c2s.common.consentgen.ConsentDto;
 import gov.samhsa.c2s.common.consentgen.ConsentGenException;
+import gov.samhsa.c2s.common.consentgen.IdentifierDto;
 import gov.samhsa.c2s.contexthandler.service.dto.ConsentListAndPatientDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyDto;
@@ -36,6 +37,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -201,15 +203,17 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
 
             for (DomainResource fhirToProviderResource : fhirToProviderResourceList) {
 
-                String fhirFromProviderNpi;
+                Set<IdentifierDto> fhirToProviderIdentifiers;
                 try {
-                    fhirFromProviderNpi = consentBuilder.extractNpiFromFhirProviderResource(fhirToProviderResource);
+                    fhirToProviderIdentifiers = consentBuilder.extractIdentifiersFromFhirProviderResource(fhirToProviderResource);
                 } catch (ConsentGenException e) {
-                    log.error("ConsentGenException occurred while attempting to extract NPI from recipient(actor) FHIR provider resource in 'filterMatchingConsentsFromBundle' method", e);
-                    throw new FhirConsentInvalidException("Error extracting NPI from recipient(actor) Provider resource", e);
+                    log.error("ConsentGenException occurred while attempting to extract identifiers from recipient(actor) FHIR provider resource in 'filterMatchingConsentsFromBundle' method", e);
+                    throw new FhirConsentInvalidException("Error extracting identifiers from recipient(actor) Provider resource", e);
                 }
 
-                if (fhirFromProviderNpi.equalsIgnoreCase(xacmlRequest.getRecipientIdentifier().getValue())) {
+                if (fhirToProviderIdentifiers.stream()
+                        .anyMatch(identifierDto -> xacmlRequest.getRecipientIdentifier().getOid().equals(identifierDto.getOid()) &&
+                                xacmlRequest.getRecipientIdentifier().getValue().equals(identifierDto.getValue()))) {
                     toProviderMatched = true;
                     break;
                 }
@@ -229,15 +233,17 @@ public class FhirServerPolicyProviderImpl implements PolicyProvider {
                     fhirFromProviderResourceList.add((DomainResource) fhirFromProvider.getReference().getResource()));
 
             for (DomainResource fhirFromProviderResource : fhirFromProviderResourceList) {
-                String fhirFromProviderNpi;
+                Set<IdentifierDto> fhirFromProviderIdentifiers;
                 try {
-                    fhirFromProviderNpi = consentBuilder.extractNpiFromFhirProviderResource(fhirFromProviderResource);
+                    fhirFromProviderIdentifiers = consentBuilder.extractIdentifiersFromFhirProviderResource(fhirFromProviderResource);
                 } catch (ConsentGenException e) {
-                    log.error("ConsentGenException occurred while attempting to extract NPI from organization(From) FHIR provider resource in 'filterMatchingConsentsFromBundle' method", e);
-                    throw new FhirConsentInvalidException("Error extracting NPI from organization(From) Provider resource", e);
+                    log.error("ConsentGenException occurred while attempting to extract identifiers from organization(From) FHIR provider resource in 'filterMatchingConsentsFromBundle' method", e);
+                    throw new FhirConsentInvalidException("Error extracting identifiers from organization(From) Provider resource", e);
                 }
 
-                if (fhirFromProviderNpi.equalsIgnoreCase(xacmlRequest.getIntermediaryIdentifier().getValue())) {
+                if (fhirFromProviderIdentifiers.stream()
+                        .anyMatch(identifierDto -> xacmlRequest.getIntermediaryIdentifier().getOid().equals(identifierDto.getOid()) &&
+                                xacmlRequest.getIntermediaryIdentifier().getValue().equals(identifierDto.getValue()))) {
                     fromProviderMatched = true;
                 }
             }
