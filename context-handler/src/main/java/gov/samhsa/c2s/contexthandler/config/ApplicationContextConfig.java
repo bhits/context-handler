@@ -7,7 +7,7 @@ import gov.samhsa.c2s.common.consentgen.ConsentBuilder;
 import gov.samhsa.c2s.common.consentgen.ConsentBuilderImpl;
 import gov.samhsa.c2s.common.consentgen.ConsentDtoFactory;
 import gov.samhsa.c2s.common.consentgen.XacmlXslUrlProvider;
-import gov.samhsa.c2s.common.consentgen.pg.XacmlXslUrlProviderImpl;
+import gov.samhsa.c2s.common.consentgen.XacmlXslUrlProviderImpl;
 import gov.samhsa.c2s.common.document.accessor.DocumentAccessor;
 import gov.samhsa.c2s.common.document.accessor.DocumentAccessorImpl;
 import gov.samhsa.c2s.common.document.converter.DocumentXmlConverter;

@@ -9,6 +9,24 @@
             <Resources>
                 <Resource>
                     <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mockMrn^^^&amp;1.3.6.1.4.1.21367.13.20.200&amp;ISO</AttributeValue>
+                        <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </ResourceMatch>
+                    <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">34133-9</AttributeValue>
+                        <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:typeCode" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </ResourceMatch>
+                    <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:ebxml-regrep:StatusType:Approved</AttributeValue>
+                        <ResourceAttributeDesignator AttributeId="xacml:status" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </ResourceMatch>
+                </Resource>
+                <Resource>
+                    <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mockSSN^^^&amp;2.16.840.1.113883.4.1&amp;ISO</AttributeValue>
+                        <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </ResourceMatch>
+                    <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">34133-9</AttributeValue>
                         <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:typeCode" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                     </ResourceMatch>
@@ -46,19 +64,19 @@
                         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
                             <SubjectAttributeDesignator MustBePresent="false" AttributeId="urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                         </Apply>
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">1111111111</AttributeValue>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">1111111111^^^&amp;2.16.840.1.113883.4.6&amp;ISO</AttributeValue>
                     </Apply>
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
                             <SubjectAttributeDesignator MustBePresent="false" AttributeId="urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                         </Apply>
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">3333333333</AttributeValue>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">3333333333^^^&amp;2.16.840.1.113883.4.6&amp;ISO</AttributeValue>
                     </Apply>
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
                             <SubjectAttributeDesignator MustBePresent="false" AttributeId="urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                         </Apply>
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">2222222222</AttributeValue>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">2222222222^^^&amp;2.16.840.1.113883.4.6&amp;ISO</AttributeValue>
                     </Apply>
                 </Apply>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
@@ -66,19 +84,19 @@
                         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
                             <SubjectAttributeDesignator MustBePresent="false" AttributeId="urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                         </Apply>
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">5555555555</AttributeValue>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">5555555555^^^&amp;2.16.840.1.113883.4.6&amp;ISO</AttributeValue>
                     </Apply>
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
                             <SubjectAttributeDesignator MustBePresent="false" AttributeId="urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                         </Apply>
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">4444444444</AttributeValue>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">4444444444^^^&amp;2.16.840.1.113883.4.6&amp;ISO</AttributeValue>
                     </Apply>
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
                             <SubjectAttributeDesignator MustBePresent="false" AttributeId="urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                         </Apply>
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">6666666666</AttributeValue>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">6666666666^^^&amp;2.16.840.1.113883.4.6&amp;ISO</AttributeValue>
                     </Apply>
                 </Apply>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">

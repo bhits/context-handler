@@ -5,6 +5,7 @@ public enum PdpAttributeIds {
     SUBJECT_RECIPIENT("urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject"),
     SUBJECT_INTERMEDIARY("urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject"),
     SUBJECT_POU("urn:oasis:names:tc:xspa:1.0:subject:purposeofuse"),
+    RESOURCE_ID("urn:oasis:names:tc:xacml:1.0:resource:resource-id"),
     RESOURCE_TYPECODE("urn:oasis:names:tc:xacml:1.0:resource:typeCode"),
     RESOURCE_STATUS("xacml:status"),
     ACTION_ACTIONID("urn:oasis:names:tc:xacml:1.0:action:action-id"),

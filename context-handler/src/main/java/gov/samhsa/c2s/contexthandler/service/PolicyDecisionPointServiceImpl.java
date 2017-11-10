@@ -9,6 +9,7 @@ import gov.samhsa.c2s.common.document.converter.DocumentXmlConverter;
 import gov.samhsa.c2s.common.document.converter.DocumentXmlConverterException;
 import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerAuditVerb;
 import gov.samhsa.c2s.contexthandler.service.audit.ContextHandlerPredicateKey;
+import gov.samhsa.c2s.contexthandler.service.dto.ObligationDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.dto.XacmlResponseDto;
 import gov.samhsa.c2s.contexthandler.service.exception.C2SAuditException;
@@ -22,13 +23,14 @@ import org.herasaf.xacml.core.api.PolicyRepository;
 import org.herasaf.xacml.core.api.PolicyRetrievalPoint;
 import org.herasaf.xacml.core.api.UnorderedPolicyRepository;
 import org.herasaf.xacml.core.context.RequestMarshaller;
+import org.herasaf.xacml.core.context.impl.DecisionType;
 import org.herasaf.xacml.core.context.impl.RequestType;
 import org.herasaf.xacml.core.context.impl.ResponseType;
 import org.herasaf.xacml.core.context.impl.ResultType;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.herasaf.xacml.core.policy.PolicyMarshaller;
 import org.herasaf.xacml.core.policy.impl.AttributeAssignmentType;
-import org.herasaf.xacml.core.policy.impl.ObligationType;
+import org.herasaf.xacml.core.policy.impl.ObligationsType;
 import org.herasaf.xacml.core.simplePDP.SimplePDPFactory;
 import org.herasaf.xacml.core.simplePDP.initializers.InitializerExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +41,16 @@ import javax.annotation.PostConstruct;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * ss PolicyDecisionPointServiceImpl.
@@ -54,6 +59,10 @@ import java.util.Set;
 @Slf4j
 public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointService {
 
+    public static final String PERMIT = DecisionType.PERMIT.toString();
+    public static final String DENY = DecisionType.DENY.toString();
+    public static final String INDETERMINATE = DecisionType.INDETERMINATE.toString();
+    public static final String NOT_APPLICABLE = DecisionType.NOT_APPLICABLE.toString();
     /**
      * The policy provider.
      */
@@ -82,7 +91,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     private DocumentXmlConverter documentXmlConverter;
 
     @Override
-    public XacmlResponseDto evaluateRequest(XacmlRequestDto xacmlRequest){
+    public XacmlResponseDto evaluateRequest(XacmlRequestDto xacmlRequest) {
         log.info("evaluateRequest invoked");
 
         final RequestType request = requestGenerator.generateRequest(xacmlRequest);
@@ -119,7 +128,6 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
         return policyProvider.getPolicies(xacmlRequest);
     }
 
-
     private XacmlResponseDto managePoliciesAndEvaluateRequest(PDP pdp,
                                                               RequestType request) {
         final XacmlResponseDto xacmlResponse = evaluateRequest(pdp, request);
@@ -128,38 +136,55 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
     }
 
     private XacmlResponseDto evaluateRequest(PDP simplePDP, RequestType request) {
-        //final XacmlResponseDto xacmlResponse = new XacmlResponseDto();
-        List<String> pdpObligations = new ArrayList<>();
-        final XacmlResponseDto xacmlResponse = XacmlResponseDto.builder().pdpDecision("DENY").pdpObligations
-                (pdpObligations).build();
-
         final ResponseType response = simplePDP.evaluate(request);
-        for (final ResultType r : response.getResults()) {
-            log.debug("PDP Decision: " + r.getDecision().toString());
-            xacmlResponse.setPdpDecision(r.getDecision().toString());
-
-            if (r.getObligations() != null) {
-                final List<String> obligations = new LinkedList<>();
-                for (final ObligationType o : r.getObligations()
-                        .getObligations()) {
-                    for (final AttributeAssignmentType a : o
-                            .getAttributeAssignments()) {
-                        for (final Object c : a.getContent()) {
-                            log.debug("With Obligation: " + c);
-                            obligations.add(c.toString());
-                        }
-                    }
-                }
-                xacmlResponse.setPdpObligations(obligations);
-            }
-        }
-
-        log.debug("xacmlResponse.pdpDecision: "
-                + xacmlResponse.getPdpDecision());
+        final XacmlResponseDto xacmlResponse = response.getResults().stream()
+                .map(this::handleResult)
+                .reduce(this::reduce)
+                .orElseGet(() -> XacmlResponseDto.builder().pdpDecision(DENY).build());
+        log.debug("xacmlResponse.pdpDecision: " + xacmlResponse.getPdpDecision());
         log.debug("xacmlResponse is ready!");
         return xacmlResponse;
     }
 
+    private XacmlResponseDto handleResult(ResultType result) {
+        final String decision = result.getDecision().toString();
+        log.debug("PDP Decision: " + decision);
+        final List<ObligationDto> obligations = Optional.ofNullable(result)
+                .map(ResultType::getObligations)
+                .map(ObligationsType::getObligations)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .flatMap(obligation -> obligation.getAttributeAssignments().stream()
+                        .map(AttributeAssignmentType::getContent)
+                        .flatMap(List::stream)
+                        .map(String.class::cast)
+                        .peek(obligationValue -> log.debug("With Obligation: " + obligationValue))
+                        .map(obligationValue -> ObligationDto.builder()
+                                .obligationId(obligation.getObligationId())
+                                .obligationValue(obligationValue).build()))
+                .collect(toList());
+        final XacmlResponseDto xacmlResponse = XacmlResponseDto.builder()
+                .pdpObligations(obligations)
+                .pdpDecision(decision).build();
+        return xacmlResponse;
+    }
+
+    private XacmlResponseDto reduce(XacmlResponseDto x1, XacmlResponseDto x2) {
+        final String decision = DENY.equalsIgnoreCase(x1.getPdpDecision()) || DENY.equalsIgnoreCase(x2.getPdpDecision()) ? DENY :
+                INDETERMINATE.equalsIgnoreCase(x1.getPdpDecision()) || INDETERMINATE.equalsIgnoreCase(x2.getPdpDecision()) ? INDETERMINATE :
+                        NOT_APPLICABLE.equalsIgnoreCase(x1.getPdpDecision()) || NOT_APPLICABLE.equalsIgnoreCase(x2.getPdpDecision()) ? NOT_APPLICABLE :
+                                x2.getPdpDecision();
+        final List<ObligationDto> obligations = Stream.concat(getObligationDtoStream(x1), getObligationDtoStream(x2))
+                .collect(toList());
+        return XacmlResponseDto.builder()
+                .pdpDecision(decision)
+                .pdpObligations(obligations)
+                .build();
+    }
+
+    private Stream<ObligationDto> getObligationDtoStream(XacmlResponseDto xacmlResponseDto) {
+        return Optional.of(xacmlResponseDto).map(XacmlResponseDto::getPdpObligations).orElseGet(Collections::emptyList).stream();
+    }
 
     void deployPolicies(PDP pdp, List<Evaluatable> policies,
                         XacmlRequestDto xacmlRequest, boolean isAudited) {
@@ -217,7 +242,7 @@ public class PolicyDecisionPointServiceImpl implements PolicyDecisionPointServic
                 predicateMap.put(ContextHandlerPredicateKey.XACML_POLICY_ID, policyIdSet.toString());
             }
             auditClient.get().audit(this, xacmlRequest.getMessageId(), ContextHandlerAuditVerb.DEPLOY_POLICY,
-                    xacmlRequest.getPatientId().getExtension(), predicateMap);
+                    xacmlRequest.getPatientIdentifier().getFullIdentifier(), predicateMap);
         }
     }
 
