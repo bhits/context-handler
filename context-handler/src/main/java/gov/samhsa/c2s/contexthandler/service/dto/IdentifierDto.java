@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.ScriptAssert;
+import org.springframework.util.StringUtils;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -17,8 +19,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NoArgsConstructor
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "identifier")
+@ScriptAssert(alias = "_", lang = "javascript", script = "_.hasSystemOrOid()")
 public class IdentifierDto {
-    @NotBlank
+    private String system;
     private String oid;
     @NotBlank
     private String value;
@@ -29,5 +32,9 @@ public class IdentifierDto {
 
     public String getFullIdentifier() {
         return FullIdentifierBuilder.buildFullIdentifier(value, oid);
+    }
+
+    public boolean hasSystemOrOid() {
+        return StringUtils.hasText(system) || StringUtils.hasText(oid);
     }
 }
