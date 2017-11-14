@@ -1,6 +1,8 @@
 package gov.samhsa.c2s.contexthandler.service;
 
 import feign.FeignException;
+import gov.samhsa.c2s.common.log.Logger;
+import gov.samhsa.c2s.common.log.LoggerFactory;
 import gov.samhsa.c2s.contexthandler.infrastructure.PcmService;
 import gov.samhsa.c2s.contexthandler.service.dto.ConsentXacmlDto;
 import gov.samhsa.c2s.contexthandler.service.dto.PolicyContainerDto;
@@ -9,7 +11,6 @@ import gov.samhsa.c2s.contexthandler.service.dto.XacmlRequestDto;
 import gov.samhsa.c2s.contexthandler.service.exception.NoPolicyFoundException;
 import gov.samhsa.c2s.contexthandler.service.exception.PcmClientInterfaceException;
 import gov.samhsa.c2s.contexthandler.service.util.PolicyCombiningAlgIds;
-import lombok.extern.slf4j.Slf4j;
 import org.herasaf.xacml.core.policy.Evaluatable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,9 +22,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Slf4j
 @ConditionalOnProperty(name = "c2s.context-handler.policy-provider", havingValue = "PcmServicePolicyProviderImpl")
 public class PcmServicePolicyProviderImpl implements PolicyProvider {
+    private final Logger logger = LoggerFactory.getLogger(PcmServicePolicyProviderImpl.class);
+
     private final PcmService pcmService;
     private final XacmlPolicySetService xacmlPolicySetService;
 
@@ -55,7 +57,7 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
         ConsentXacmlDto consentXacmlDto;
 
         try {
-
+            logger.info(xacmlRequest::toString);
             consentXacmlDto = pcmService.exportXACMLConsent(xacmlRequest);
             PolicyDto policyDto = new PolicyDto();
             policyDto.setId(consentXacmlDto.getConsentRefId());
@@ -63,7 +65,7 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
 
             policyDtoList.add(policyDto);
 
-            log.info("Conversion of ConsentDto list to XACML PolicyDto list complete.");
+            logger.info("Conversion of ConsentDto list to XACML PolicyDto list complete.");
 
             return policyDtoList;
         } catch (FeignException fe) {
@@ -71,10 +73,10 @@ public class PcmServicePolicyProviderImpl implements PolicyProvider {
 
             switch (causedByStatus) {
                 case 404:
-                    log.error("PCM client returned a 404 - Consent Not Found", fe);
+                    logger.error("PCM client returned a 404 - Consent Not Found", fe);
                     throw new NoPolicyFoundException("Consent not found with given XACML Request" + xacmlRequest);
                 default:
-                    log.error("PCM client returned an unexpected instance of FeignException", fe);
+                    logger.error("PCM client returned an unexpected instance of FeignException", fe);
                     throw new PcmClientInterfaceException("An unknown error occurred while attempting to communicate " +
                             "with" +
                             " PCM service");
